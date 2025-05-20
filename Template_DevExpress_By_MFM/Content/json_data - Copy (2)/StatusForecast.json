@@ -1,0 +1,22 @@
+﻿[
+  {
+    "ID": "0",
+    "Name": "PO"
+  },
+  {
+    "ID": "1",
+    "Name": "PO Adjustment"
+  },
+  {
+    "ID": "2",
+    "Name": "Confirmed PIC"
+  },
+  {
+    "ID": "3",
+    "Name": "Agreed"
+  },
+  {
+    "ID": "4",
+    "Name": "Achievement Delivery"
+  }
+]

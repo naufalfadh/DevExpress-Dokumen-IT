@@ -1,0 +1,327 @@
+@{
+    ViewBag.Title = "Login";
+}
+
+<style>
+    .account-page-full {
+        left: 0;
+        position: absolute;
+        height: 100%;
+        margin: 0;
+        width: 420px;
+        background-color: #ffffff;
+    }
+
+    .text-blue {
+        color: blue;
+    }
+
+    .accountbg {
+        background: url("../images/bg.jpg");
+        position: absolute;
+        background-size: cover;
+        background-position: center;
+        height: 100%;
+        width: 100%;
+        top: 0;
+    }
+
+    .account-page-full {
+        left: 0;
+        position: absolute;
+        height: 100%;
+        margin: 0;
+        width: 420px;
+        background-color: #ffffff;
+    }
+
+        .account-page-full .logo {
+            line-height: 70px;
+        }
+
+        .account-page-full .card {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+</style>
+
+<!-- Begin page -->
+
+<div class="wrapper-page">
+
+    <div class="modal fade" id="modal-message" style="margin:auto;" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel2" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mt-0" id="myLargeModalLabel2" style="text-align:center;font-size:17px;">Informasi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row col-12" style="margin:auto;">
+                                <h6 class="modal-title mt-0" id="text-message" style="text-align:center;font-size:16px;font-weight:bold;"></h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+
+            <div class="text-center">
+                <img src="~/Content/images-new/logo_gs_battery_dark.jpg" height="60" alt="logo">
+            </div>
+
+            <div class="p-3">
+                <h4 class="font-18 m-b-5 text-center text-blue">Portal Dokumen Digital IT</h4>
+                <p class="text-muted text-center"> Sign in to continue</p>
+
+
+
+                <div class="form-group">
+                    <label for="username"> Username</label>
+                    <input type="text" class="form-control" id="username" value="" placeholder="Enter username">
+              
+                </div>
+
+                <div class="form-group">
+                    <label for="userpassword">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="userpassword" placeholder="Enter password">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-control" id="usertype">
+                        <option value="Local">Portal GS</option>
+                        <option value="GS">LDAP</option>
+                    </select>
+                </div>
+
+
+                <div class="form-group row m-t-20 text-center">
+                    <div class="col-sm-12">
+                        <button id="btn_login" class="btn btn-primary w-100 waves-effect waves-light" type="button"> Log In</button>
+                    </div>
+                </div>
+
+                <div class="form-group text-center">
+                    <span>Forgot Password? <a href="#" style="color: blue; text-decoration: none;" id="reset-link">Reset</a></span>
+                </div>
+
+        </div>
+    </div>
+</div>
+</div>
+<!-- end wrapper-page -->
+
+@section scripts{
+    <script>
+
+        var urlToOrder = false;
+        var urlIDOrder = "";
+
+        $(document).ready(function () {
+            //document.getElementById("btn_login").click();
+            if (location.search != null) {
+                var myParam = location.search.split('order=')[1];
+                if (myParam != "" && myParam != undefined) {
+                    urlToOrder = true;
+                    urlIDOrder = myParam;
+                } else {
+                    urlToOrder = false;
+                    urlIDOrder = "";
+                }
+            }
+
+        });
+
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordField = document.getElementById('userpassword');
+            const icon = this.querySelector('i');
+
+            // Toggle the type attribute
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        });
+
+
+        !function ($) {
+            "use strict";
+
+            var SweetAlert = function () {
+            };
+
+
+            var passwordSubmit = document.getElementById("userpassword");
+
+            //examples
+            SweetAlert.prototype.init = function () {
+
+                passwordSubmit.addEventListener("keyup", function (event) {
+                    // Number 13 is the "Enter" key on the keyboard
+                    if (event.keyCode === 13) {
+                        // Cancel the default action, if needed
+                        event.preventDefault();
+                        // Trigger the button element with a click
+                        document.getElementById("btn_login").click();
+                    }
+                });
+
+                $('#btn_login').click(function () {
+
+                    if ($('#username').val() == "") {
+                        $('#modal-message').modal('show');
+                        $('#text-message').html("Username masih kosong. Harap untuk mengisi dan mencoba kembali!");
+                        setTimeout(() => {
+                            $('#modal-message').modal('hide');
+                        }, 2000);
+                        return;
+                    }
+
+                    if ($('#userpassword').val() == "") {
+                        $('#modal-message').modal('show');
+                        $('#text-message').html("Password masih kosong. Harap untuk mengisi dan mencoba kembali!");
+                        setTimeout(() => {
+                            $('#modal-message').modal('hide');
+                        }, 2000);
+                        return;
+                    }
+
+                    if ($('#usertype').val() == "") {
+                        $('#modal-message').modal('show');
+                        $('#text-message').html("User Type masih kosong. Harap untuk mengisi dan mencoba kembali!");
+                        setTimeout(() => {
+                            $('#modal-message').modal('hide');
+                        }, 2000);
+                        return;
+                    }
+
+
+                    if ($('#userdepartment').val() == "") {
+                        $('#modal-message').modal('show');
+                        $('#text-message').html("Department masih kosong. Harap untuk mengisi dan mencoba kembali!");
+                        setTimeout(() => {
+                            $('#modal-message').modal('hide');
+                        }, 2000);
+                        return;
+                    }
+
+                    if ($('#username').val != "" && $('#userpassword').val != "" && $('#usertype').val != "") {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("PostLogin", "Login")',
+                            data: {
+                                username: $('#username').val(),
+                                userpass: $('#userpassword').val(),
+                                usertype: $('#usertype').val(),
+                            },
+                            beforeSend: function () {
+                                Swal.showLoading()
+                            },
+                            success: function (response) {
+                                Swal.DismissReason.cancel
+                                console.log(response);
+                                if (response.status_code == 200 && response.status) {
+                                    $('#username').val("");
+                                    $('#userpassword').val("");
+
+                                    Swal.fire(
+                                        {
+                                            title: 'Complete!',
+                                            text: 'Login Success!',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#626ed4',
+                                            cancelButtonColor: "#ec4561"
+                                        }
+                                    )
+
+                                    var $link = '@Html.Raw(Url.Action("Index", "Home", new { order = "replaceID" }))';
+                                    $link = $link.replace("replaceID", encodeURIComponent(urlIDOrder));
+
+                                    if (urlToOrder == true && urlIDOrder != undefined) {
+                                        window.location.href = $link;
+                                    } else {
+                                        window.location.pathname = '@Url.Action("Index", "Home")';
+                                    }
+
+                                    
+                                }
+                                else if (response.status_code == 404) {
+                                    Swal.fire(
+                                        {
+                                            title: 'Failed!',
+                                            text: 'Account not found! \n Username/Password incorrect. \n Please check again!',
+                                            type: 'error',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#626ed4',
+                                            cancelButtonColor: "#ec4561"
+                                        }
+                                    )
+                                }
+                                else if (response.status_code == 403) {
+                                    Swal.fire(
+                                        {
+                                            title: 'Failed!',
+                                            text: 'Account is not active! \n Please contact Administrator (IT)!',
+                                            type: 'warning',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#626ed4',
+                                            cancelButtonColor: "#ec4561"
+                                        }
+                                    )
+                                }
+                                else {
+                                    Swal.fire(
+                                        {
+                                            title: 'Failed!',
+                                            text: 'Failed to Login',
+                                            type: 'warning',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#626ed4',
+                                            cancelButtonColor: "#ec4561"
+                                        }
+                                    )
+                                }
+
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.DismissReason.cancel
+                                console.log(error);
+                            }
+                        });
+                    }
+                });
+
+            },
+                //init
+                $.SweetAlert = new SweetAlert, $.SweetAlert.Constructor = SweetAlert
+        }(window.jQuery),
+
+            //initializing
+            function ($) {
+                "use strict";
+                $.SweetAlert.init()
+            }(window.jQuery);
+
+    </script>
+
+}

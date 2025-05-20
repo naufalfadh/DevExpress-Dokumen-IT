@@ -1,0 +1,50 @@
+﻿[
+  {
+    "ID": 11,
+    "Name": "Waiting Approve Testing User"
+  },
+  {
+    "ID": 10,
+    "Name": "Waiting Testing"
+  },
+  {
+    "ID": 9,
+    "Name": "Waiting Approval Business Analyst"
+  },
+  {
+    "ID": 8,
+    "Name": "Waiting Analisis"
+  },
+  {
+    "ID": 7,
+    "Name": "Done"
+  },
+  {
+    "ID": 6,
+    "Name": "Waiting BAST Kadept IT"
+  },
+  {
+    "ID": 5,
+    "Name": "Waiting BAST User"
+  },
+  {
+    "ID": 4,
+    "Name": "Waiting BAST"
+  },
+  {
+    "ID": 3,
+    "Name": "On Progress"
+  },
+  {
+    "ID": 2,
+    "Name": "Reject"
+  },
+  {
+    "ID": 1,
+    "Name": "Waiting Approval Kadept IT"
+  },
+  {
+    "ID": 0,
+    "Name": "Waiting Approval Kadept"
+  }
+]

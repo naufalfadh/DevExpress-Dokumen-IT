@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="dashboardmarketingportal">
+    <meta name="author" content="muhammadfauzimilad">
+
+    <title>Dashboard Marketing Portal</title>
+    <link rel="shortcut icon" href="~/Content/images-new/logo_gs_battery_nonbg.ico">
+
+
+    <link rel="stylesheet" href="~/Content/plugins/chartist/css/chartist.min.css">
+    <link href="~/Content/css-new/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/css-new/metismenu.min.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/css-new/icons.css" rel="stylesheet" type="text/css">
+    <link href="~/Content/css-new/style.css" rel="stylesheet" type="text/css">
+
+    <link href="~/Content/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+    <link href="~/Content/plugins/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="~/Content/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    @*<link href="~/Content/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css" rel="stylesheet" />*@
+
+    <!-- Sweet Alert -->
+    <link href="~/Content/plugins/sweet-alert2/sweetalert2.min.css" rel="stylesheet" type="text/css">
+
+    @* Uncomment to use the HtmlEditor control *@
+    @* <script src="https://unpkg.com/devextreme-quill/dist/dx-quill.min.js"></script> *@
+
+    @Styles.Render("~/Content/bundle")
+    @Styles.Render("~/Content/DevExtremeBundle")
+    @Scripts.Render("~/Scripts/bundle")
+    @Scripts.Render("~/Scripts/DevExtremeBundle")
+    @RenderSection("scripts", required: false)
+</head>
+
+<body>
+
+    @*<nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-md">
+            <a class="navbar-brand" href="/">Dashboard_Marketing_01</a>
+
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="active nav-item"><a href="#" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="container">
+            @RenderBody()
+            <hr />
+            <footer class="footer">
+                <div class="container">
+                    PT. GS Battery &copy; 2021 - Dashboard Vending Machine - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </footer>
+        </main>*@
+
+    <div id="wrapper">
+        <!-- Top Bar Start -->
+        <div class="topbar">
+
+            <!-- LOGO -->
+            <div class="topbar-left">
+                <a href="@Url.Action("Index", "Home")" class="logo">
+                    <span>
+                        <img src="~/Content/images-new/logo_gs_battery_light.png" alt="" height="50">
+                    </span>
+                    <i>
+                        <img src="~/Content/images-new/logo_gs_battery_nonbg.png" alt="" height="35">
+                    </i>
+                </a>
+            </div>
+
+            <nav class="navbar-custom">
+                <ul class="navbar-right list-inline float-right mb-0">
+                    @*<li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                            <form role="search" class="app-search">
+                                <div class="form-group mb-0">
+                                    <input type="text" class="form-control" placeholder="Search..">
+                                    <button type="submit"><i class="fa fa-search"></i></button>
+                                </div>
+                            </form>
+                        </li>*@
+
+
+
+                    <!-- full screen -->
+                    <li class="dropdown notification-list list-inline-item d-none d-md-inline-block">
+                        <a class="nav-link waves-effect" href="#" id="btn-fullscreen">
+                            <i class="mdi mdi-fullscreen noti-icon"></i>
+                        </a>
+                    </li>
+
+                    <!-- notification -->
+                    <li class="dropdown notification-list list-inline-item">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                            <i class="mdi mdi-bell-outline noti-icon"></i>
+                            <span class="badge badge-pill badge-danger noti-icon-badge">3</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+                            <!-- item-->
+                            <h6 class="dropdown-item-text">
+                                Notifications (3)
+                            </h6>
+                            <div class="slimscroll notification-item-list">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item notify-item active">
+                                    <div class="notify-icon bg-success"><i class="mdi mdi-cube-outline"></i></div>
+                                    <p class="notify-details">Stok Sisa Menipis<span class="text-muted">stok sisa jumlah 30 lagi. Harap mengisi ulang!</span></p>
+                                </a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-warning"><i class="mdi mdi-cube-outline"></i></div>
+                                    <p class="notify-details">Stok Sisa Menipis<span class="text-muted">stok sisa jumlah 10 lagi. Harap mengisi ulang!</span></p>
+                                </a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-info"><i class="mdi mdi-cube-outline"></i></div>
+                                    <p class="notify-details">Stok Sisa Menipis<span class="text-muted">stok sisa jumlah 5 lagi. Harap mengisi ulang!</span></p>
+                                </a>
+                            </div>
+                            <!-- All-->
+                            <a href="javascript:void(0);" class="dropdown-item text-center text-primary">
+                                View all <i class="fi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="dropdown notification-list list-inline-item">
+                        <div class="dropdown notification-list nav-pro-img">
+                            <a class="dropdown-toggle nav-link arrow-none waves-effect nav-user" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                                <img src="~/Content/images-new/users/profile.jpg" alt="user" class="rounded-circle">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
+                                <!-- item-->
+                                <a class="dropdown-item" href="#"><i class="mdi mdi-account-circle m-r-5"></i>Change Password</a>
+                                @*<a class="dropdown-item" href="#"><i class="mdi mdi-wallet m-r-5"></i> My Wallet</a>
+                                    <a class="dropdown-item d-block" href="#"><span class="badge badge-success float-right">11</span><i class="mdi mdi-settings m-r-5"></i> Settings</a>
+                                    <a class="dropdown-item" href="#"><i class="mdi mdi-lock-open-outline m-r-5"></i> Lock screen</a>*@
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Login")"><i class="mdi mdi-power text-danger"></i> Logout</a>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+
+                <ul class="list-inline menu-left mb-0">
+                    <li class="float-left">
+                        <button class="button-menu-mobile open-left waves-effect">
+                            <i class="mdi mdi-menu"></i>
+                        </button>
+                    </li>
+                </ul>
+
+            </nav>
+
+        </div>
+        <!-- Top Bar End -->
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="left side-menu">
+            <div class="slimscroll-menu" id="remove-scroll">
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+                    <!-- Left Menu Start -->
+                    <ul class="metismenu" id="side-menu">
+                        <li class="menu-title">Main</li>
+                        <li>
+                            <a href="@Url.Action("Index", "Home")" class="waves-effect">
+                                <i class="ti-pie-chart"></i><span class="badge badge-primary badge-pill float-right">2</span> <span> Dashboard </span>
+                            </a>
+                        </li>
+                        <li class="menu-title">Manage</li>
+                        <li>
+                            <a href="@Url.Action("ListManageYearlyPlan", "Manage")" class="waves-effect">
+                                <i class="ti-panel"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Yearly Plan </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("ListManageItemPartNumber", "Manage")" class="waves-effect">
+                                <i class="ti-panel"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Item Part Number </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("ListManageForecast", "Manage")" class="waves-effect">
+                                <i class="ti-panel"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Forecast </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("ListManageOrder", "Manage")" class="waves-effect">
+                                <i class="ti-panel"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Order </span>
+                            </a>
+                        </li>
+                        <li class="menu-title">Report</li>
+                        <li>
+                            <a href="" class="waves-effect">
+                                <i class="ti-receipt"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Forecast by Amount </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="" class="waves-effect">
+                                <i class="ti-receipt"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Forecast by Qty </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+                <!-- Sidebar -->
+                <div class="clearfix"></div>
+
+            </div>
+            <!-- Sidebar -left -->
+
+        </div>
+        <!-- Left Sidebar End -->
+
+        <div class="content-page">
+            @*<div class="container body-content">*@
+            @RenderBody()
+            <hr />
+            <footer class="footer">
+                <div class="container">
+                    PT. GS Battery &copy; 2021 - Dashboard Marketing - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </footer>
+        </div>
+
+
+    </div>
+
+
+
+    <script src="~/Scripts/js-new/jquery.min.js"></script>
+    <script src="~/Scripts/js-new/bootstrap.bundle.min.js"></script>
+    <script src="~/Scripts/js-new/metisMenu.min.js"></script>
+    <script src="~/Scripts/js-new/jquery.slimscroll.js"></script>
+    <script src="~/Scripts/js-new/waves.min.js"></script>
+
+    <!--Chartist Chart-->
+    <script src="~/Content/plugins/chartist/js/chartist.min.js"></script>
+    <script src="~/Content/plugins/chartist/js/chartist-plugin-tooltip.min.js"></script>
+
+
+    @*<script src="~/Content/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>*@
+    @*<script src="~/Content/plugins/bootstrap-filestyle/js/bootstrap-filestyle.min.js"></script>*@
+    @*<script src="~/Content/plugins/bootstrap-touchspin/js/jquery.bootstrap-touchspin.min.js"></script>*@
+
+    <!-- peity JS -->
+    <script src="~/Content/plugins/peity-chart/jquery.peity.min.js"></script>
+
+    <script src="~/Content/pages/dashboard.js"></script>
+    <!-- Plugins Init js -->
+    @*<script src="~/Content/pages/form-advanced.js"></script>*@
+
+    <!-- Sweet-Alert  -->
+    @*<script src="~/Content/plugins/sweet-alert2/sweetalert2.min.js"></script>*@
+    @*<script src="~/Content/pages/sweet-alert.init.js"></script>*@
+
+    @*<script src="~/Content/plugins/parsleyjs/parsley.min.js"></script>*@
+
+    <!-- App js -->
+    <script src="~/Scripts/js-new/app.js"></script>
+</body>
+
+</html>

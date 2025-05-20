@@ -1,0 +1,26 @@
+﻿[
+  {
+    "ID": "kadept",
+    "Name": "Kadept"
+  },
+  {
+    "ID": "kadeptit",
+    "Name": "Kadept IT"
+  },
+  {
+    "ID": "admin",
+    "Name": "Admin"
+  },
+  {
+    "ID": "superadmin",
+    "Name": "Super Admin"
+  },
+  {
+    "ID": "user",
+    "Name": "User"
+  },
+  {
+    "ID": "businessanalyst",
+    "Name": "Business Analyst"
+  }
+]

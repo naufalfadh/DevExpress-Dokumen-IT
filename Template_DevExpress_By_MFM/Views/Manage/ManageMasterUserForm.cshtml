@@ -1,0 +1,546 @@
+﻿@using Template_DevExpress_By_MFM.Models
+
+@{
+    ViewBag.Title = "Manage Master User Form";
+    var dateNow = DateTime.UtcNow.AddHours(7);
+    var dateNowPlus1 = DateTime.UtcNow.AddHours(7).AddDays(1);
+    var vbranch_id = 0;
+    var vtreatment_id = 0;
+    var vprice = 0;
+    var vpriceDiscount = 0;
+    var vpriceNet = 0;
+    var vmed_id = 0;
+
+
+}
+
+<style>
+
+    textarea, input {
+        /*min-inline-size: -moz-available, -webkit-fill-available;*/
+        min-inline-size: -webkit-fill-available;
+    }
+
+    .widget-container {
+        margin-right: 320px;
+    }
+
+    .content h4 {
+        margin-bottom: 10px;
+        font-weight: 500;
+        font-size: 18px;
+    }
+
+    .content {
+        margin-top: 50px;
+        margin-left: 10px;
+    }
+
+    .selected-item {
+        margin-bottom: 20px;
+    }
+
+    .selected-patient {
+        cursor: pointer;
+    }
+
+    #selected-files {
+        display: none;
+    }
+
+    .options {
+        padding: 20px;
+        background-color: rgba(191, 191, 191, 0.15);
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+    }
+
+    .caption {
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .option {
+        margin-top: 10px;
+    }
+
+    .dx-datagrid-rowsview .column_class {
+        text-align: left !important;
+    }
+
+    .dx-datagrid-rowsview .column_class_readonly {
+        text-align: left !important;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .dx-datagrid-rowsview .column_class_price {
+        text-align: right !important;
+    }
+
+    .horizontal-scrollable > .row {
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+    }
+
+        .horizontal-scrollable > .row > .col-4 {
+            display: inline-block;
+        }
+
+    .wrapper1 {
+        width: 100%;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+
+    .topScrollTableLength {
+        display: block;
+    }
+
+    .dx-datagrid-rowsview .column_class {
+        text-align: left !important;
+    }
+
+    #signatureCanvas {
+        width: 100% !important;
+        height: 150px !important;
+        border: 1px solid black;
+        touch-action: none; /* penting untuk HP/tablet */
+    }
+
+</style>
+
+
+<div class="content">
+    <div class="container-fluid" style="padding-bottom:-300px;">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-sm-4">
+                    <h4 class="page-title">Manage Master User Form</h4>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="javascript:void(0);">Manage</a>
+                        </li>
+                        <li class="breadcrumb-item" active>
+                            <a href="@Url.Action("ManageMasterUserForm", "Menu")">User Dokumen Request</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <ul id="tablist2" class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-view-listworkorder" data-toggle="tab" href="#view-listworkorder" onclick="refreshTableListWorkOrder()" role="tab">
+                                <span class="d-block d-sm-none"><i class="far fa-user"></i></span>
+                                <span class="d-none d-sm-block">List User</span>
+                            </a>
+                        </li>
+                    </ul>
+
+
+                    <div class="tab-content" id="tab-content1">
+
+                        <div class="tab-pane p-3" id="view-listworkorder" role="tabpanel">
+                            <div class="card">
+                                <div class="card-body">
+                                    @(Html.DevExtreme().DataGrid<MasterUserForm>()
+.ID("gridListWorkOrder")
+.ShowBorders(true)
+.AllowColumnReordering(true)
+.AllowColumnResizing(true)
+.ColumnAutoWidth(true)
+.ColumnFixing(c => c.Enabled(true))
+.Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+.ShowColumnLines(true)
+.RowAlternationEnabled(true)
+.ColumnChooser(c => c.Enabled(true).Mode(GridColumnChooserMode.Select))
+.DataSource(d => d.WebApi()
+    .Controller("ManageMasterUserForm")
+    .DeleteAction(true)
+    .UpdateAction(true)
+    .InsertAction(true)
+    .Key("id_user"))
+.Columns(columns => {
+columns.Add().Caption("No").AllowEditing(false).Width(80).FormItem(i => i.Visible(false)).CellTemplate(new JS("cell_numbering")).Alignment(HorizontalAlignment.Center);
+
+columns.AddFor(m => m.usr_npk).Caption("NPK")
+    .AllowEditing(true)
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().MaxLength(6).ReadOnly(false).Disabled(false)));
+
+columns.AddFor(m => m.usr_nama).Caption("Nama")
+    .AllowEditing(true)
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+
+columns.AddFor(m => m.usr_plant).Caption("Plant").Alignment(HorizontalAlignment.Center)
+                      .Lookup(lookup => lookup
+                          .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserPlant.json").Key("ID"))
+                          .DisplayExpr("Name")
+                          .ValueExpr("ID")
+                      )
+                      .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+
+columns.AddFor(m => m.usr_section).Caption("Section").Alignment(HorizontalAlignment.Center)
+              .Lookup(lookup => lookup
+                  .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserSection.json").Key("ID"))
+                  .DisplayExpr("Name")
+                  .ValueExpr("ID")
+              )
+              .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+
+columns.AddFor(m => m.usr_role).Caption("Role").Alignment(HorizontalAlignment.Center)
+      .Lookup(lookup => lookup
+          .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserRole.json").Key("ID"))
+          .DisplayExpr("Name")
+          .ValueExpr("ID")
+      )
+      .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+
+columns.AddFor(m => m.usr_pass).Caption("Password")
+    .AllowEditing(true)
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+
+
+columns.AddFor(m => m.usr_createBy).Caption("Create By")
+    .AllowEditing(false)
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+columns.AddFor(m => m.usr_createDate).Caption("Create Date")
+    .AllowEditing(false)
+    .Format("dd/MM/yyyy HH:mm a")
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+columns.AddFor(m => m.usr_modifBy).Caption("Modified By")
+    .AllowEditing(false)
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+columns.AddFor(m => m.usr_modifDate).Caption("Modified Date")
+    .AllowEditing(false)
+    .Format("dd/MM/yyyy HH:mm a")
+    .Alignment(HorizontalAlignment.Center)
+    .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+columns.AddFor(m => m.usr_img_ttd)
+        .Caption("Tanda Tangan")
+        .AllowEditing(false) // biar gak bisa diubah langsung dari grid
+        .CellTemplate(@<text>
+                <% if (data.usr_img_ttd) { %>
+                    <img src="<%- data.usr_img_ttd %>" style="height: 50px;" />
+                <% } else { %>
+                    <span style="color: #aaa;">(Belum ada)</span>
+                <% } %>
+            </text>)
+            .FormItem(f => f.Visible(true).Template(@<text>
+                <div style="border: 1px solid #ccc; padding: 10px;">
+                    <canvas id="signatureCanvas" width="400" height="150" style="border:1px solid #000;"></canvas>
+                    <br />
+                    <button type="button" class="btn btn-sm btn-danger" onclick="clearSignature()">Clear</button>
+                    <img id="previewSignature" src="" style="max-height: 80px; margin-top: 10px; display:none;" />
+                </div>
+            </text>));
+    columns.AddFor(m => m.usr_email).Caption("Email")
+.AllowEditing(true)
+.Alignment(HorizontalAlignment.Center)
+.FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+
+
+
+})
+    .Paging(p => p.PageSize(10))
+    .Pager(pager =>
+    {
+        pager.Visible(true);
+        pager.DisplayMode(GridPagerDisplayMode.Full);
+        pager.ShowPageSizeSelector(true);
+        pager.AllowedPageSizes(new JS("[10, 50, 'all']"));
+        pager.ShowInfo(true);
+        pager.ShowNavigationButtons(true);
+    })
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Form);
+        editing.AllowUpdating(true);
+        editing.AllowAdding(true);
+        editing.AllowDeleting(true);
+        editing.UseIcons(true);
+    })
+    .Selection(selection => selection.Mode(SelectionMode.Single))
+    .OnToolbarPreparing("onToolbarPreparing")
+    .OnEditingStart("onEditingStart")
+    .OnInitNewRow("onInitNewRow")
+    .OnRowClick("onRowClick")
+    .OnRowInserting("onRowInserting")
+    .OnRowUpdating("onRowUpdating")
+    //.OnCellPrepared("onCellPreparedDataGrid")
+    .SearchPanel(f => f.Visible(true))
+    .FilterRow(f => f.Visible(false))
+    .HeaderFilter(f => f.Visible(false).AllowSearch(false))
+    .RemoteOperations(true)
+    )
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- container-fluid -->
+</div>
+<!-- content -->
+
+@section scripts
+{
+    <script src="~/Content/plugins/moment/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
+
+    <script>
+        const datenow = new Date();
+
+
+        $(document).ready(function () {
+            document.getElementById("nav-view-listworkorder").click();
+            //document.getElementById("nav-view-createworkorder").click();
+        });
+
+        function initSignatureCanvas() {
+            setTimeout(() => {
+                const canvas = document.getElementById('signatureCanvas');
+                if (!canvas) {
+                    console.log("❌ signatureCanvas not found");
+                    return;
+                }
+
+                // Resize canvas biar support semua device / DPI
+                resizeCanvas(canvas);
+
+                // Inisialisasi SignaturePad
+                signaturePad = new SignaturePad(canvas, {
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    penColor: 'black'
+                });
+
+                console.log("✅ SignaturePad initialized");
+
+                // Ambil instance grid dan row index dari editing controller
+                const grid = $("#gridListWorkOrder").dxDataGrid("instance");
+                const editingController = grid.getController("editing");
+                const rowIndex = editingController._editRowIndex;
+
+                // Jika sedang Edit (bukan Add), tampilkan tanda tangan sebelumnya
+                if (rowIndex >= 0) {
+                    const existingValue = grid.cellValue(rowIndex, "usr_img_ttd");
+                    if (existingValue) {
+                        const img = document.getElementById("previewSignature");
+                        img.src = existingValue;
+                        img.style.display = "block";
+                    }
+                }
+
+                // Simpan tanda tangan setiap selesai menggambar
+                signaturePad.onEnd = function () {
+                    const base64 = signaturePad.toDataURL();
+
+                    if (rowIndex >= 0) {
+                        grid.cellValue(rowIndex, "usr_img_ttd", base64);
+
+                        console.log("📝 Signature saved to usr_img_ttd:", base64);
+                        console.log("Current cell value:", grid.cellValue(rowIndex, "usr_img_ttd"));
+
+                        const img = document.getElementById("previewSignature");
+                        img.src = base64;
+                        img.style.display = "block";
+                    } else {
+                        console.log("❌ Tidak bisa set tanda tangan, rowIndex tidak ditemukan.");
+                    }
+                };
+
+            }, 500); // delay agar form grid sudah render sepenuhnya
+        }
+
+        function onInitNewRow(e) {
+            initSignatureCanvas();
+        }
+        function onRowClick(e) {
+            if (e.rowType === "data") {
+                setTimeout(() => {
+                    const form = document.querySelector('.dx-datagrid-edit-form');
+                    if (form) {
+                        initSignatureCanvas();
+                    }
+                }, 300);
+            }
+        }
+
+
+
+        let signaturePad;
+
+        function saveSignature() {
+            if (signaturePad && !signaturePad.isEmpty()) {
+                const base64 = signaturePad.toDataURL();
+                const grid = $("#gridListWorkOrder").dxDataGrid("instance");
+                grid.cellValue(grid.getVisibleRows()[0].rowIndex, "usr_img_ttd", base64);
+                $('#previewSignature').attr("src", base64).show();
+            }
+        }
+
+        function clearSignature() {
+            if (signaturePad) {
+                signaturePad.clear();
+                const grid = $("#gridListWorkOrder").dxDataGrid("instance");
+                grid.cellValue(grid.getVisibleRows()[0].rowIndex, "usr_img_ttd", null);
+                $('#previewSignature').hide();
+            }
+        }
+
+        function onEditingStart(e) {
+            console.log("🔥 onEditingStart triggered!");
+
+            setTimeout(() => {
+                const canvas = document.getElementById('signatureCanvas');
+                if (!canvas) {
+                    console.log("❌ Canvas not found");
+                    return;
+                }
+
+                console.log("✅ Canvas found, now initializing SignaturePad...");
+
+                resizeCanvas(canvas);
+
+                signaturePad = new SignaturePad(canvas, {
+                    backgroundColor: 'rgba(255,255,255,0)',
+                    penColor: 'black'
+                });
+
+                canvas.addEventListener('mouseup', saveSignature);
+                canvas.addEventListener('touchend', saveSignature);
+
+                console.log("✅ SignaturePad initialized");
+            }, 500);
+        }
+
+
+        function resizeCanvas(canvas) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
+
+
+        function convertToBase64(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64 = e.target.result;
+
+                    // Ambil instance DataGrid
+                    const grid = $("#gridListWorkOrder").dxDataGrid("instance");
+
+                    // Set value langsung ke cell editor menggunakan field name
+                    grid.cellValue(grid.getVisibleRows()[0].rowIndex, "usr_img_ttd", base64);
+
+                    console.log("✅ Base64 value set directly via cellValue():", base64);
+
+                    // Preview gambar
+                    $('#previewSignature').attr("src", base64);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function onRowInserting(e) {
+            if (signaturePad && !signaturePad.isEmpty()) {
+                const base64 = signaturePad.toDataURL();
+                e.data.usr_img_ttd = base64;
+                console.log("📝 [Insert] TTD dimasukkan ke e.data.usr_img_ttd");
+            } else {
+                console.log("⚠️ [Insert] TTD kosong, tidak diset");
+            }
+        }
+
+        function onRowUpdating(e) {
+            if (signaturePad && !signaturePad.isEmpty()) {
+                const base64 = signaturePad.toDataURL();
+                e.newData.usr_img_ttd = base64;
+                console.log("📝 [Update] TTD dimasukkan ke e.newData.usr_img_ttd");
+            } else {
+                console.log("⚠️ [Update] TTD kosong, tidak diset");
+            }
+        }
+
+
+
+        function cell_numbering(cellElement, cellInfo) {
+            cellElement.text(cellInfo.rowIndex + 1);
+        }
+
+
+         function refreshTableListWorkOrder() {
+            let dataGrid = document.getElementById("gridListWorkOrder");
+            let instanceDataGrid = DevExpress.ui.dxDataGrid.getInstance(dataGrid);
+            var $link = '@Html.Raw(Url.Action("ManageMasterUserForm", "api"))';
+
+             instanceDataGrid.option('dataSource', DevExpress.data.AspNet.createStore({
+                 key: "id_user",
+                 loadUrl: $link,
+                 insertUrl: $link,
+                 updateUrl: $link,
+                 deleteUrl: $link
+             }));
+
+        }
+
+        let refreshButton;
+
+        function onToolbarPreparing(e) {
+            var dataGrid = e.component;
+            e.toolbarOptions.items[0].showText = 'always';
+            e.toolbarOptions.items.push({
+                location: "after",
+                widget: "dxButton",
+                options: {
+                    text: "Refresh",
+                    icon: "refresh",
+                    disabled: false,
+                    onClick: onRefreshBtnClick,
+                    onInitialized: function (e) {
+                        refreshButton = e.component;
+                    }
+                }
+            });
+        }
+
+        function onRefreshBtnClick() {
+            refreshTableListWorkOrder();
+        }
+
+
+    </script>
+
+}

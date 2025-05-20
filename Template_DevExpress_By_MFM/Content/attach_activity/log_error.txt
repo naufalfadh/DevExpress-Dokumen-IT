@@ -1,0 +1,17 @@
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\TarikData_Line2AssySMG.xlsx
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\PrintDN.pdf
+================FINISH================
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\Simple - Price Quotation.xlsx
+================FINISH================
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\MOM QA IT - 300123.xlsx
+================FINISH================
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\MOM QA IT - 300123-03022023141648.xlsx
+================FINISH================
+================STARTING================
+progress -> file save completed to C:\Users\omar\Documents\Project - Marketing\Dashboard-Marketing\Dashboard Marketing 01\Content\attach_activity\template_input_manual_battery(assy-acid).xlsx
+================FINISH================

@@ -1,0 +1,330 @@
+﻿@using Template_DevExpress_By_MFM.Models
+
+@{
+    ViewBag.Title = "Manage Master Email";
+    var dateNow = DateTime.UtcNow.AddHours(7);
+    var dateNowPlus1 = DateTime.UtcNow.AddHours(7).AddDays(1);
+    var vbranch_id = 0;
+    var vtreatment_id = 0;
+    var vprice = 0;
+    var vpriceDiscount = 0;
+    var vpriceNet = 0;
+    var vmed_id = 0;
+
+
+}
+
+<!-- Left Sidebar End -->
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<!-- Start content -->
+<style>
+    /*.dx-datagrid-headers {
+        zoom: 75%;
+        -moz-transform: scale(0.75);*/
+    /*-moz-transform-origin: left top;*/
+    /*}
+
+    .dx-datagrid-rowsview {
+        zoom: 75%;
+        -moz-transform: scale(0.75);*/
+    /*-moz-transform-origin: left top;*/
+    /*}*/
+
+    textarea, input {
+        /*min-inline-size: -moz-available, -webkit-fill-available;*/
+        min-inline-size: -webkit-fill-available;
+    }
+
+    .widget-container {
+        margin-right: 320px;
+    }
+
+    .content h4 {
+        margin-bottom: 10px;
+        font-weight: 500;
+        font-size: 18px;
+    }
+
+    .content {
+        margin-top: 50px;
+        margin-left: 10px;
+    }
+
+    .selected-item {
+        margin-bottom: 20px;
+    }
+
+    .selected-patient {
+        cursor: pointer;
+    }
+
+    #selected-files {
+        display: none;
+    }
+
+    .options {
+        padding: 20px;
+        background-color: rgba(191, 191, 191, 0.15);
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+    }
+
+    .caption {
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .option {
+        margin-top: 10px;
+    }
+
+    .dx-datagrid-rowsview .column_class {
+        text-align: left !important;
+    }
+
+    .dx-datagrid-rowsview .column_class_readonly {
+        text-align: left !important;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .dx-datagrid-rowsview .column_class_price {
+        text-align: right !important;
+    }
+
+    .horizontal-scrollable > .row {
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+    }
+
+        .horizontal-scrollable > .row > .col-4 {
+            display: inline-block;
+        }
+
+    .wrapper1 {
+        width: 100%;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+
+    .topScrollTableLength {
+        display: block;
+    }
+
+    .dx-datagrid-rowsview .column_class {
+        text-align: left !important;
+    }
+</style>
+
+
+<div class="content">
+    <div class="container-fluid" style="padding-bottom:-300px;">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-sm-4">
+                    <h4 class="page-title">Manage Master Emails</h4>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="javascript:void(0);">Manage</a>
+                        </li>
+                        <li class="breadcrumb-item" active>
+                            <a href="@Url.Action("ManageMasterEmail", "Menu")"> Master Emails</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+
+                <div class="col-lg-12">
+                    <ul id="tablist2" class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link" id="nav-view-listworkorder" data-toggle="tab" href="#view-listworkorder" onclick="refreshTableListWorkOrder()" role="tab">
+                                <span class="d-block d-sm-none"><i class="far fa-user"></i></span>
+                                <span class="d-none d-sm-block">List Emails</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="tab-content1">
+
+                        <div class="tab-pane p-3" id="view-listworkorder" role="tabpanel">
+                            <div class="card">
+                                <div class="card-body">
+                                    @(Html.DevExtreme().DataGrid<ManageEmail>()
+    .ID("gridListWorkOrder")
+    .ShowBorders(true)
+    .AllowColumnReordering(true)
+    .AllowColumnResizing(true)
+    .ColumnAutoWidth(true)
+    .ColumnFixing(c => c.Enabled(true))
+    .Scrolling(scrolling => scrolling.ColumnRenderingMode(GridColumnRenderingMode.Virtual))
+    .ShowColumnLines(true)
+    .RowAlternationEnabled(true)
+    .WordWrapEnabled(true)
+    .ColumnChooser(c => c.Enabled(true).Mode(GridColumnChooserMode.Select))
+    .DataSource(d => d.WebApi()
+        .Controller("ManageMasterEmail")
+        .DeleteAction(true)
+        .UpdateAction(true)
+        .InsertAction(true)
+        .Key("id_recnum_email"))
+    .Columns(columns => {
+        columns.Add().Caption("No").AllowEditing(false).Width(80).FormItem(i => i.Visible(false)).CellTemplate(new JS("cell_numbering")).Alignment(HorizontalAlignment.Center);
+
+        columns.AddFor(m => m.category).Caption("Category")
+        .AllowEditing(true)
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(true).Editor(e => e.TextBox().ReadOnly(false).Disabled(false)));
+
+        columns.AddFor(m => m.email_from).Caption("Email From")
+       .AllowEditing(true)
+       .Width(300)
+       //.ValidationRules(vr =>
+       //{
+       //    vr.AddEmail().IgnoreEmptyValue(false);
+       //})
+       .Alignment(HorizontalAlignment.Center)
+       .FormItem(f => f.Visible(true).IsRequired(true).Editor(e => e.TextArea().Height(100).Disabled(false).ReadOnly(false)));
+
+        columns.AddFor(m => m.email_to).Caption("Email To")
+        .AllowEditing(true)
+       .Width(300)
+        //.ValidationRules(vr =>
+        //{
+        //    vr.AddEmail().IgnoreEmptyValue(false);
+        //})
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(true).IsRequired(true).Editor(e => e.TextArea().Height(100).Disabled(false).ReadOnly(false)));
+
+        columns.AddFor(m => m.insert_date).Caption("Create Date")
+        .AllowEditing(false)
+        .Format("dd/MM/yyyy HH:mm a")
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+        columns.AddFor(m => m.update_date).Caption("Modified Date")
+        .AllowEditing(false)
+        .Format("dd/MM/yyyy HH:mm a")
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+
+    })
+    .Paging(p => p.PageSize(10))
+    .Pager(pager =>
+    {
+        pager.Visible(true);
+        pager.DisplayMode(GridPagerDisplayMode.Full);
+        pager.ShowPageSizeSelector(true);
+        pager.AllowedPageSizes(new JS("[10, 50, 'all']"));
+        pager.ShowInfo(true);
+        pager.ShowNavigationButtons(true);
+    })
+    .Editing(editing =>
+    {
+        editing.Mode(GridEditMode.Form);
+        editing.AllowUpdating(true);
+        editing.AllowAdding(true);
+        editing.AllowDeleting(true);
+        editing.UseIcons(true);
+    })
+    .Selection(selection => selection.Mode(SelectionMode.Single))
+    .OnToolbarPreparing("onToolbarPreparing")
+    //.OnRowPrepared("OnRowPrepared_Test")
+    //.OnEditorPreparing("OnEditorPreparingDataGrid")
+    //.OnCellPrepared("onCellPreparedDataGrid")
+    .SearchPanel(f => f.Visible(true))
+    .FilterRow(f => f.Visible(true))
+    .HeaderFilter(f => f.Visible(true).AllowSearch(false))
+    .RemoteOperations(true)
+    )
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- container-fluid -->
+</div>
+<!-- content -->
+
+@section scripts
+{
+    <script src="~/Content/plugins/moment/moment.js"></script>
+
+    <script>
+        const datenow = new Date();
+
+
+        $(document).ready(function () {
+            document.getElementById("nav-view-listworkorder").click();
+            //document.getElementById("nav-view-createworkorder").click();
+        });
+
+
+
+        function cell_numbering(cellElement, cellInfo) {
+            cellElement.text(cellInfo.rowIndex + 1);
+        }
+
+
+         function refreshTableListWorkOrder() {
+            let dataGrid = document.getElementById("gridListWorkOrder");
+            let instanceDataGrid = DevExpress.ui.dxDataGrid.getInstance(dataGrid);
+            var $link = '@Html.Raw(Url.Action("ManageMasterEmail", "api"))';
+
+             instanceDataGrid.option('dataSource', DevExpress.data.AspNet.createStore({
+                 key: "id_recnum_email",
+                 loadUrl: $link,
+                 insertUrl: $link,
+                 updateUrl: $link,
+                 deleteUrl: $link
+             }));
+
+        }
+
+        let refreshButton;
+
+        function onToolbarPreparing(e) {
+            var dataGrid = e.component;
+            e.toolbarOptions.items[0].showText = 'always';
+            e.toolbarOptions.items.push({
+                location: "after",
+                widget: "dxButton",
+                options: {
+                    text: "Refresh",
+                    icon: "refresh",
+                    disabled: false,
+                    onClick: onRefreshBtnClick,
+                    onInitialized: function (e) {
+                        refreshButton = e.component;
+                    }
+                }
+            });
+        }
+
+        function onRefreshBtnClick() {
+            refreshTableListWorkOrder();
+        }
+
+
+    </script>
+
+}

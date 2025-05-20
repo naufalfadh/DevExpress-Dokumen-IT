@@ -1,0 +1,10 @@
+﻿[
+  {
+    "ID": "Read Only",
+    "Name": "Read Only"
+  },
+  {
+    "ID": "Full Access",
+    "Name": "Full Access"
+  }
+]

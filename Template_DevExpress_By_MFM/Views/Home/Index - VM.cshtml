@@ -1,0 +1,469 @@
+@using Template_DevExpress_By_MFM.Models
+@{
+    ViewBag.Title = "Dashboard";
+
+    //var totalBusinessPlan = 0;
+    //var totalYearlyPlan = 0;
+    //var totalForecast = 0;
+    //var totalPOOriginal = 0;
+    //long totalPOAgreed = 0;
+
+    //if (ViewBag.dataBoardBusinessPlan != null) {
+    //    totalBusinessPlan = ViewBag.dataBoardBusinessPlan;
+    //}
+    //if (ViewBag.dataBoardYearlyPlan != null)
+    //{
+    //    totalYearlyPlan = ViewBag.dataBoardYearlyPlan;
+    //}
+    //if (ViewBag.dataBoardForecast != null)
+    //{
+    //    totalForecast = ViewBag.dataBoardForecast;
+    //}
+    //if (ViewBag.dataBoardPOOriginal != null)
+    //{
+    //    totalPOOriginal = ViewBag.dataBoardPOOriginal;
+    //}
+    //if (ViewBag.dataBoardPOAgreed != null)
+    //{
+    //    totalPOAgreed = ViewBag.dataBoardPOAgreed;
+    //}
+
+
+}
+
+<style>
+    #chart {
+        height: 440px;
+        width: 100%;
+    }
+
+    /*#select-years {*/
+        /*margin: auto;*/
+        /*text-align: right;
+        margin: auto;
+        margin-top: 8px;
+        margin-right: 5px !important;
+    }*/
+</style>
+
+<!-- Left Sidebar End -->
+<!-- ============================================================== -->
+<!-- Start right Content here -->
+<!-- ============================================================== -->
+<!-- Start content -->
+<div class="content">
+    <div class="container-fluid">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+
+                <div class="col-sm-12">
+                    <h4 class="page-title">Dashboard</h4>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active">Selamat Datang di Portal Vending Machine GS Battery</li>
+                    </ol>
+
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+
+        <input type="text" hidden id="temp_tab_card" />
+        <input type="text" hidden id="temp_chart_bar_year" />
+        <input type="text" hidden id="temp_chart_bar_month_number" />
+        <input type="text" hidden id="temp_chart_bar_battery_type" />
+        <input type="text" hidden id="temp_chart_bar_material_type" />
+        <input type="text" hidden id="temp_chart_bar_title" />
+
+
+        <div class="row">
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-broadcast bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Transaksi Tahun Ini</h6>
+                        <h5 class="mb-3" id="qty_tahun">@ViewBag.dataBoardQTYTahunIni</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2" style="font-size:11px !important;"> 12% <i class="mdi mdi-arrow-down"></i></span>From prev. year</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"></span></p>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-broadcast bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Transaksi Bulan Ini</h6>
+                        <h5 class="mb-3" id="qty_bulan">@ViewBag.dataBoardQTYBulanIni</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 12% <i class="mdi mdi-arrow-up"></i></span>From prev. year</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 4% <i class="mdi mdi-arrow-up"></i></span>From BP</p>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-box bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Transaksi Minggu Ini</h6>
+                        <h5 class="mb-3" id="qty_minggu">@ViewBag.dataBoardQTYMingguIni</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-danger mr-2"> -6% <i class="mdi mdi-arrow-down"></i></span>From BP</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 3% <i class="mdi mdi-arrow-up"></i></span>From Yearly Plan</p>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-tags bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Transaksi Hari Ini</h6>
+                        <h5 class="mb-3" id="qty_hari">@ViewBag.dataBoardQTYHariIni</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-danger mr-2"> -4% <i class="mdi mdi-arrow-down"></i></span>From BP</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 3% <i class="mdi mdi-arrow-up"></i></span>From Yearly Plan</p>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-tags bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Restok Hari Ini</h6>
+                        @*<h5 class="mb-3" id="qty_restok">@ViewBag.dataBoardQTYRestokHariIni</h5>*@
+                        <h5 class="mb-3" id="qty_restok">3210</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-danger mr-2"> -6% <i class="mdi mdi-arrow-down"></i></span>From BP</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 3% <i class="mdi mdi-arrow-up"></i></span>From Yearly Plan</p>*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="card mini-stat bg-pattern">
+                    <div class="card-body mini-stat-img">
+                        <div class="mini-stat-icon">
+                            <i class="dripicons-tags bg-soft-primary text-primary float-right h4"></i>
+                        </div>
+                        <h6 class="text-uppercase mb-3 mt-0" style="font-size:9px !important;">Sisa Stok Semua</h6>
+                         <h5 class="mb-3" id="qty_sisa">@ViewBag.dataBoardQTYSisaHariIni</h5>
+                        @*<p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-danger mr-2"> -9% <i class="mdi mdi-arrow-down"></i></span>From BP</p>
+                        <p class="text-muted mb-0" style="font-size:9px !important;"><span class="text-success mr-2"> 3% <i class="mdi mdi-arrow-up"></i></span>From Yearly Plan</p>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-8 row" style="margin:auto;text-align:right;position:absolute;">
+                            @(Html.DevExtreme().SelectBox()
+            .ID("select-years")
+            .DataSource(d => d.WebApi().Controller("ListYears"))
+            .DisplayExpr("years")
+            .ValueExpr("years")
+            .OnValueChanged("onValueChangedYear")
+            .Placeholder("Year")
+            .Width(100)
+        )
+                            &nbsp;
+                            &nbsp;
+                            @(Html.DevExtreme().SelectBox()
+                    .ID("select-months")
+                    .DataSource(d => d.WebApi().Controller("ListMonths"))
+                    .DisplayExpr("months")
+                    .ValueExpr("id_recnum_month")
+                    .OnValueChanged("onValueChangedMonth")
+                    .Placeholder("Month")
+                    .Width(100)
+                )
+
+                        </div>
+
+                        @(Html.DevExtreme().Chart()
+    .ID("bar-chart")
+    .CommonSeriesSettings(s => s
+        .ArgumentField("nama_vm")
+        .Type(SeriesType.Bar)
+        .Color("#eb4334")
+        .HoverMode(ChartSeriesHoverMode.AllArgumentPoints)
+        .SelectionMode(ChartSeriesSelectionMode.OnlyPoint)
+        .Label(l => l
+            .Visible(true)
+            .BackgroundColor("#eb4334")
+            .Format(f => f
+                .Type(Format.FixedPoint)
+            //.Precision(2)
+            //.Precision(0)
+            )
+        )
+    )
+    .Title("Grand Total Transaksi")
+    .Margin(m => m
+    .Top(28)
+    )
+    .Legend(l => l
+        .VerticalAlignment(VerticalEdge.Bottom)
+        .HorizontalAlignment(HorizontalAlignment.Center)
+    )
+    .Export(e => e.Enabled(true))
+    .ValueAxis(a => a
+        .Add()
+        .Label(l => l
+            .Format(Format.FixedPoint)
+            )
+        )
+   .Series(s => s
+        .Add()
+        .ArgumentField("nama_vm")
+        .ValueField("total")
+        .Name("Vending Machine")
+        .Type(SeriesType.Bar)
+        .Color("#ffaa66")
+    )
+    .OnPointClick(@<text>
+        function(e) {
+            e.target.select();
+        }
+    </text>)
+    .DataSource(d => d.WebApi().Controller("DashboardGetBar").Key("id_recnum_mav").LoadParams(new { tahun = "" , bulan = "" }))
+
+)
+                    </div>
+                </div>
+
+
+            </div>
+
+
+
+            <div class="col-xl-4">
+                <div class="card messages">
+                    <div class="card-body">
+                        @(Html.DevExtreme().PieChart()
+    .ID("pie")
+    .Type(PieChartType.Donut)
+    .Palette(VizPalette.SoftPastel)
+    .Title("Pilihan Populer")
+    .Tooltip(t => t
+        .Enabled(true)
+        .Format(Format.FixedPoint)
+        .CustomizeTooltip(@<text>
+            function(arg) {
+                return {
+                    text: arg.valueText + " - " + (arg.percent * 100).toFixed(2) + "%"
+                };
+            }
+        </text>)
+    )
+    .Legend(l => l
+        .HorizontalAlignment(HorizontalAlignment.Right)
+        .VerticalAlignment(VerticalEdge.Top)
+        .Margin(0)
+    )
+    .Export(e => e.Enabled(true))
+    .Series(s => s
+        .Add()
+        .ArgumentField("nama_variant")
+        .ValueField("total")
+        //.Color("")
+        .Label(l => l
+            .Visible(true)
+            .Format(Format.FixedPoint)
+            .Connector(c => c.Visible(true))
+        )
+        .HoverStyle(h => h.Color("#ffd700")
+
+    ))
+    .OnPointClick(@<text>
+        function(arg) {
+            arg.target.select();
+        }
+    </text>)
+    .DataSource(d => d.WebApi().Controller("DashboardGetPie").Key("nama_variant"))
+
+)
+
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-xl-12">
+                <div class="col-8 row" style="margin:auto;text-align:right;position:absolute;">
+                    @(Html.DevExtreme().SelectBox()
+            .ID("select-years2")
+            .DataSource(d => d.WebApi().Controller("ListYears"))
+            .DisplayExpr("years")
+            .ValueExpr("years")
+            //.OnValueChanged("onValueChangedYear")
+            .Placeholder("Year")
+            .Width(100)
+        )
+                    &nbsp;
+                    &nbsp;
+                    @(Html.DevExtreme().SelectBox()
+                    .ID("select-months2")
+                    .DataSource(d => d.WebApi().Controller("ListMonths"))
+                    .DisplayExpr("months")
+                    .ValueExpr("id_recnum_month")
+                    //.OnValueChanged("onValueChangedMonth")
+                    .Placeholder("Month")
+                    .Width(100)
+                )
+
+                </div>
+                @(Html.DevExtreme().Chart()
+        .ID("spline-chart")
+        .Palette(VizPalette.Violet)
+        .CommonSeriesSettings(s => s
+            .ArgumentField("tanggal")
+            .Type(SeriesType.Line)
+            .HoverMode(ChartSeriesHoverMode.AllArgumentPoints)
+            .SelectionMode(ChartSeriesSelectionMode.OnlyPoint)
+             .Label(l => l
+            .Visible(false)
+            .Format(f => f
+                .Type(Format.FixedPoint)
+                )
+            )
+        )
+        .CommonAxisSettings(s => s
+            .Grid(g => g.Visible(true))
+        )
+         .Legend(l => l
+        .VerticalAlignment(VerticalEdge.Bottom)
+        .HorizontalAlignment(HorizontalAlignment.Center)
+    )
+        .Margin(m => m.Bottom(20))
+        .Series(s =>
+        {
+            s.Add().ValueField("vm_01").Name("Vending Machine 01");
+            s.Add().ValueField("vm_02").Name("Vending Machine 02");
+            s.Add().ValueField("vm_03").Name("Vending Machine 03");
+            s.Add().ValueField("vm_04").Name("Vending Machine 04");
+            s.Add().ValueField("vm_05").Name("Vending Machine 05");
+            s.Add().ValueField("vm_06").Name("Vending Machine 06");
+            s.Add().ValueField("vm_07").Name("Vending Machine 07");
+        })
+       .ValueAxis(a => a
+        .Add()
+        .Label(l => l
+            .Format(Format.FixedPoint)
+            )
+        )
+        .Tooltip(t => t.Enabled(true))
+        .Legend(l => l
+            .VerticalAlignment(VerticalEdge.Top)
+            .HorizontalAlignment(HorizontalAlignment.Right)
+        )
+
+        .ArgumentAxis(a => a
+            .Label(l => l.Format(Format.Decimal))
+            .AllowDecimals(false)
+            .AxisDivisionFactor(60)
+        )
+        .Export(e => e.Enabled(true))
+        .Title("Rata-Rata Transaksi Perbulan")
+    //.DataSource(new[] {
+    //    new { Year = 1997, SMP = 263, MMP = 226, Cnstl = 10, Cluster = 1 },
+    //    new { Year = 1999, SMP = 169, MMP = 256, Cnstl = 66, Cluster = 7 },
+    //    new { Year = 2001, SMP = 57, MMP = 257, Cnstl = 143, Cluster = 43 },
+    //    new { Year = 2003, SMP = 0, MMP = 163, Cnstl = 127, Cluster = 210 },
+    //    new { Year = 2005, SMP = 0, MMP = 103, Cnstl = 36, Cluster = 361 },
+    //    new { Year = 2007, SMP = 0, MMP = 91, Cnstl = 3, Cluster = 406 }
+    //})
+
+    .DataSource(d => d.WebApi().Controller("DashboardGetLine").Key("tanggal").LoadParams(new { tahun = "", bulan = "" }))
+    )
+            </div>
+        </div>
+
+
+    </div>
+    </div>
+    <!-- content -->
+
+<script>
+        $(document).ready(function () {
+            //document.getElementById("nav-first-tab").click();
+            updateStock();
+            setInterval(updateStock, 8000);
+        });
+
+    function updateStock() {
+             var $link = '@Html.Raw(Url.Action("GetRealtimeStock", "Home"))';
+
+            $.ajax({
+                url: $link,
+                cache: false,
+                success: function (result) {
+                    for (let i = 0; i < result.length; i++) {
+                        if (result[i].nama_variant.includes('Tahun')) {
+                            $('#qty_tahun').html(result[i].total);
+                        } else if (result[i].nama_variant.includes('Bulan')) {
+                            $('#qty_bulan').html(result[i].total);
+                        } else if (result[i].nama_variant.includes('Minggu')) {
+                            $('#qty_minggu').html(result[i].total);
+                        } else if (result[i].nama_variant.includes('Hari')) {
+                            $('#qty_hari').html(result[i].total);
+                        } else if (result[i].nama_variant.includes('Restok')) {
+                            //$('#qty_restok').html(result[i].total);
+                        } else if (result[i].nama_variant.includes('Sisa')) {
+                            $('#qty_sisa').html(result[i].total);
+                        }
+                    }
+
+
+
+                }
+            });
+        }
+
+        function onValueChangedYear(e) {
+            if (e.value != null) {
+                $("#temp_chart_bar_year").val(e.value);
+                getDataBarChartWithParamLoad();
+            }
+        }
+
+        function onValueChangedMonth(e) {
+            if (e.value != null) {
+                $("#temp_chart_bar_month_number").val(e.value);
+                getDataBarChartWithParamLoad();
+            }
+        }
+
+        function getDataBarChartWithParamLoad() {
+            var tahun = $("#temp_chart_bar_year").val();
+            var bulan = $("#temp_chart_bar_month_number").val();
+
+            var dataGrid = document.getElementById("bar-chart");
+            let instanceDataGrid = DevExpress.viz.dxChart.getInstance(dataGrid);
+            var $link = '@Html.Raw(Url.Action("DashboardGetBar", "api", new {
+                        tahun = "replacetahun",
+                        bulan = "replacebulan",
+                    }))';
+            $link = $link.replace("replacetahun", encodeURIComponent(tahun));
+            $link = $link.replace("replacebulan", encodeURIComponent(bulan));
+
+            instanceDataGrid.option('dataSource', DevExpress.data.AspNet.createStore({
+                key: "id_recnum_mav",
+                loadUrl: $link,
+                insertUrl: $link,
+                updateUrl: $link,
+                deleteUrl: $link
+            }));
+    }
+
+
+
+</script>

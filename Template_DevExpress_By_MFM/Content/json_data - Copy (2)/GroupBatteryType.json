@@ -1,0 +1,34 @@
+﻿[
+  {
+    "ID": "PREMIUM",
+    "Name": "PREMIUM"
+  },
+  {
+    "ID": "HYBRID",
+    "Name": "HYBRID"
+  },
+  {
+    "ID": "MFDS",
+    "Name": "MFDS"
+  },
+  {
+    "ID": "MF ISS",
+    "Name": "MF ISS"
+  },
+  {
+    "ID": "MF OEM",
+    "Name": "MF OEM"
+  },
+  {
+    "ID": "CALCIUM",
+    "Name": "CALCIUM"
+  },
+  {
+    "ID": "PREMIUM KIT",
+    "Name": "PREMIUM KIT"
+  },
+  {
+    "ID": "VRLA",
+    "Name": "VRLA"
+  }
+]

@@ -1,0 +1,18 @@
+﻿[
+  {
+    "ID": "IT",
+    "Name": "IT"
+  },
+  {
+    "ID": "Accounting",
+    "Name": "Accounting"
+  },
+  {
+    "ID": "GA",
+    "Name": "GA"
+  },
+  {
+    "ID": "Production",
+    "Name": "Production"
+  }
+]

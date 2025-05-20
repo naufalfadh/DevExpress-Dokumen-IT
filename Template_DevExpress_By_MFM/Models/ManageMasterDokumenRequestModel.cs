@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Template_DevExpress_By_MFM.Models
+{
+    [Table("tb_dok_req")]
+    public class MasterDokumenRequest
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long dok_id { get; set; }
+
+        public string dok_refnum { get; set; }
+        public long? usr_npk { get; set; }
+        public string usr_nama { get; set; }
+        public string dok_user_erp { get; set; }
+        public string dok_plant { get; set; }
+        public string dok_section { get; set; }
+        public string dok_erp { get; set; }
+        public string dok_req_modul { get; set; }
+        public string dok_req_by { get; set; }
+        public int dok_status { get; set; }
+        public string dok_lampiran { get; set; }
+        public string dok_document { get; set; }
+        public string dok_reason { get; set; }
+        public string createBy { get; set; }
+        public string modifBy { get; set; }
+        public DateTime? createDate { get; set; }
+        public DateTime? modifDate { get; set; }
+        public string dok_approve_k { get; set; }
+        public DateTime? modifDate_k { get; set; }
+        public DateTime? dok_tgl_pembuatan { get; set; }
+        public DateTime? dok_tgl_efektif { get; set; }
+        public string dok_dilaksanakan { get; set; }
+        public string dok_dilaksanakan_by { get; set; }
+        public string dok_ttd_user { get; set; }
+        public string dok_ttd_kadept { get; set; }
+        public string dok_ttd_kadeptit { get; set; }
+        public DateTime? dok_tgl_efektif_bast { get; set; }
+        public string dok_dilaksanakan_bast { get; set; }
+        public string dok_ttd_user_bast { get; set; }
+        public string dok_ttd_kadeptit_bast { get; set; }
+        public string dok_user_bast { get; set; }
+        public string dok_kadeptit_bast { get; set; }
+        public DateTime? dok_tgl_user_bast { get; set; }
+        public DateTime? dok_tgl_kadeptit_bast { get; set; }
+        public string dok_reason_reject { get; set; }
+
+        // 🟢 Relasi Detail Dokumen
+        public List<DetailDokumenRequest> DetailDokumenRequests { get; set; }
+
+        // 🟢 Foreign key ke User
+        public int id_user { get; set; }
+
+        [ForeignKey("id_user")]
+        public virtual MasterUserForm User { get; set; }
+
+        public override string ToString()
+        {
+            return $"dok_id: {dok_id}, dok_status: {dok_status}";
+        }
+    }
+}
