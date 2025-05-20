@@ -1070,11 +1070,11 @@
 
             function hideButtons() {
                 if (userRole === "user") {
-                    document.querySelectorAll(".btn-approve,.btn-accadminbast, .btn-reject, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-approve,.btn-accadminbast, .btn-reject, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadept") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit, .btn-approveusertester").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadeptit") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept, .btn-accadmin, .btn-approveusertester").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept, .btn-accadmin, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "admin") {
                     document.querySelectorAll(".btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit, .btn-approveusertester").forEach(el => el.style.display = "none");
                 } else if (userRole === "businessanalyst") {
@@ -1677,7 +1677,7 @@
                         const columnX = leftColumnX + (i * 45);  // Adjust horizontal spacing
                         const columnY = rowY;
 
-                        doc.setFont('Tahoma', 'bold');
+                        doc.setFont('Tahoma', 'normal');
                         doc.text(`${isChecked} ${modul}`, columnX, columnY);
                     }
 
@@ -1694,7 +1694,7 @@
                         const columnX = leftColumnX;  // First column
                         const columnY = rowY + (i * 4);  // Reduce spacing between options (e.g., 7px)
 
-                        doc.setFont('Tahoma', 'bold');
+                        doc.setFont('Tahoma', 'normal');
                         doc.text(`${isChecked} ${pengadaan}`, columnX, columnY);  // Show checked status for each pengadaan
                     }
 
@@ -1704,7 +1704,7 @@
                         const columnX = rightColumnX;  // Second column
                         const columnY = rowY + ((i - 3) * 4);  // Slightly adjust for the second column
 
-                        doc.setFont('Tahoma', 'bold');
+                        doc.setFont('Tahoma', 'normal');
                         doc.text(`${isChecked} ${pengadaan}`, columnX, columnY);  // Show checked status for each pengadaan
                     }
 
@@ -1715,13 +1715,17 @@
                     // ID MENU 
                     doc.text(`ID MENU                                 :`, 15, 77);
                     const idMenuValue = selectedRow.dok_id_menu || "Tidak ada ID Menu";
+                    doc.setFont('Tahoma', 'normal');
                     doc.text(idMenuValue, 62, 77);
 
+                    doc.setFont('Tahoma', 'bold');
                     // JUDUL REPORT
                     doc.text(`JUDUL REPORT                    :`, 15, 82); // Adjust the Y position as needed
                     const judulReportValue = selectedRow.dok_judul_report || "Tidak ada ID Menu";
+                    doc.setFont('Tahoma', 'normal');
                     doc.text(judulReportValue, 62, 82); // Position the JUDUL REPORT value
 
+                    doc.setFont('Tahoma', 'bold');
                     // ALASAN PERMINTAAN (Add long box below JUDUL REPORT)
                     doc.text(`ALASAN PERMINTAAN      `, 15, 87);
 
@@ -2001,7 +2005,7 @@
                     }
                     // Nama & Tanggal di bawah label
                     const createByBa = selectedRow.dok_name_ba || "-";
-                    const createDateBa = formatDate(selectedRow.dok_tgl_ba);
+                    const createDateBa = formatDate(selectedRow.dok_tgl_ba || "-");
                     doc.setFont('Tahoma', 'bold').setFontSize(8);
                     doc.text(`${createByBa}, ${createDateBa}`, boxX2 + 2, boxY2 + boxHeight2 - 2);
 
@@ -2059,8 +2063,8 @@
                     doc.setFont('Tahoma', 'bold').setFontSize(9);
                     doc.text("USER", ttdUserX + 10, ttdUserY + 4);
 
-                    if (selectedRow.dok_ttd_user) {
-                        let imgDataUser = selectedRow.dok_ttd_user;
+                    if (selectedRow.dok_ttd_tester_user) {
+                        let imgDataUser = selectedRow.dok_ttd_tester_user;
                         if (imgDataUser.startsWith('data:image')) {
                             imgDataUser = imgDataUser.split(',')[1];
                         }
@@ -2082,8 +2086,8 @@
                     doc.setFont('Tahoma', 'bold').setFontSize(9);
                     doc.text("TESTER", ttdTesterX + 7, ttdTesterY + 4);
 
-                    if (selectedRow.dok_ttd_tester_user) {
-                        let imgDataTester = selectedRow.dok_ttd_tester_user;
+                    if (selectedRow.dok_ttd_tester) {
+                        let imgDataTester = selectedRow.dok_ttd_tester;
                         if (imgDataTester.startsWith('data:image')) {
                             imgDataTester = imgDataTester.split(',')[1];
                         }
@@ -2213,7 +2217,7 @@
                     doc.setFont('Tahoma', 'bold').setFontSize(9);
 
                     doc.text(
-                        `Tanggal Pelaksanaan: ${formatDate(selectedRow.dok_tgl_bast_user)}`,
+                        `Tanggal Pelaksanaan: ${formatDate(selectedRow.dok_tgl_bast_user || "-")}`,
                         15 + 1,
                         yTextST - 9
                     );

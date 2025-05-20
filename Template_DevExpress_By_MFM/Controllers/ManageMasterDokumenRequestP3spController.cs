@@ -186,7 +186,6 @@ namespace Template_DevExpress_By_MFM.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Beberapa data master tidak valid atau kosong!" });
                 }
 
-
                 // Mengatur nilai dok_document secara manual
                 requestData.dok_document = "Permintaan Pembuatan dan Perubahan Sistem ERP"; // Menetapkan nilai ini secara langsung
 
@@ -220,7 +219,7 @@ namespace Template_DevExpress_By_MFM.Controllers
                             dok_pengadaan = requestData.dok_pengadaan ?? "",
                             dok_id_menu = requestData.dok_id_menu ?? "",
                             dok_judul_report = requestData.dok_judul_report ?? "",
-                            dok_document = requestData.dok_document ?? "", 
+                            dok_document = requestData.dok_document ?? "",
                             dok_reason = requestData.dok_reason ?? "",
                             dok_spesifikasi = requestData.dok_spesifikasi ?? "",
                             dok_lampiran = SaveBase64File(requestData.dok_lampiran, requestData.dok_refnum, $"Lampiran_{requestData.dok_refnum}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"),
@@ -238,6 +237,57 @@ namespace Template_DevExpress_By_MFM.Controllers
 
                         GSDbContext.MasterDokumenRequestP3sp.Add(form);
                         GSDbContext.SaveChanges();
+
+                        var kadeptUsers = GSDbContext.MasterUserForm
+                        .Where(u => u.usr_role != null && u.usr_role.Equals("kadept", StringComparison.OrdinalIgnoreCase) && u.usr_section == requestData.dok_section)
+                        .ToList();
+
+                        if (kadeptUsers != null && kadeptUsers.Any())
+                        {
+                            foreach (var kadept in kadeptUsers)
+                            {
+                                if (!string.IsNullOrEmpty(kadept.usr_email))
+                                {
+                                    string emailKadept = kadept.usr_email;
+                                    string emailMessage = $@"
+Yth. {kadept.usr_nama},
+
+Telah diajukan permintaan pembuatan dan perubahan sistem ERP baru dengan rincian sebagai berikut:
+
+- Nomor Referensi: {requestData.dok_refnum}
+- Plant: {requestData.dok_plant}
+- Tingkat: {requestData.dok_tingkat}
+- Pengadaan: {requestData.dok_pengadaan}
+- Judul Report: {requestData.dok_judul_report}
+- Dokumen: {requestData.dok_document}
+
+Silakan masuk ke sistem untuk melakukan proses approval.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                                    bool emailSent = SendEmailNotification(emailKadept, emailMessage);
+
+                                    if (emailSent)
+                                    {
+                                        Console.WriteLine("✅ Email berhasil dikirim ke Kadept: " + emailKadept);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("⚠️ Gagal mengirim email ke: " + emailKadept);
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"⚠️ Email Kadept kosong untuk user: {kadept.usr_nama}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Tidak ditemukan user dengan role Kadept di section: {requestData.dok_section}");
+                        }
+                        // --- End tambahan kirim email ---
 
                         transaction.Commit();
                         return Request.CreateResponse(HttpStatusCode.Created, new { Message = "Data berhasil disimpan!" });
@@ -305,7 +355,7 @@ namespace Template_DevExpress_By_MFM.Controllers
                         "Dokumen sudah direject, silakan ajukan kembali.");
                 }
 
-                // ✅ Convert session NPK ke long?
+                // Convert session NPK ke long
                 long? currentUserNpk = null;
                 if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
                 {
@@ -315,19 +365,64 @@ namespace Template_DevExpress_By_MFM.Controllers
                 if (currentUserNpk == null)
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
 
-                // ✅ Ambil user yang sedang login
+                // Ambil user yang sedang login
                 var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
 
                 if (currentUser == null)
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
 
-                // ✅ Update status & TTD kadept
+                // Update status & TTD kadept
                 master.dok_status = 1;
                 master.modifBy = sessionLogin.fullname;
                 master.modifDate = DateTime.UtcNow.AddHours(7);
                 master.dok_ttd_kadept = currentUser.usr_img_ttd ?? "";
 
                 GSDbContext.SaveChanges();
+
+                // --- Tambah pengiriman email ke semua user role kadeptit (tanpa filter section) ---
+                var kadeptitUsers = GSDbContext.MasterUserForm
+                        .Where(u => u.usr_role != null && u.usr_role.Equals("kadeptit", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                if (kadeptitUsers != null && kadeptitUsers.Any())
+                {
+                    foreach (var kadeptit in kadeptitUsers)
+                    {
+                        if (!string.IsNullOrEmpty(kadeptit.usr_email))
+                        {
+                            string emailKadeptit = kadeptit.usr_email;
+                            string emailMessage = $@"
+Yth. {kadeptit.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah disetujui oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailKadeptit, emailMessage);
+
+                            if (emailSent)
+                            {
+                                Console.WriteLine("✅ Email berhasil dikirim ke KadeptIT: " + emailKadeptit);
+                            }
+                            else
+                            {
+                                Console.WriteLine("⚠️ Gagal mengirim email ke: " + emailKadeptit);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email KadeptIT kosong untuk user: {kadeptit.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
+                // --- End pengiriman email ---
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD disimpan" });
             }
@@ -336,6 +431,7 @@ namespace Template_DevExpress_By_MFM.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
 
         [SessionCheck]
         [HttpPut]
@@ -623,8 +719,43 @@ namespace Template_DevExpress_By_MFM.Controllers
                 master.dok_ttd_tester = currentUser.usr_img_ttd ?? "";
                 master.dok_tgl_tester = DateTime.UtcNow.AddHours(7);
 
-
                 GSDbContext.SaveChanges();
+
+                var users = GSDbContext.MasterUserForm
+                       .Where(u => u.usr_role != null && u.usr_role.Equals("user", StringComparison.OrdinalIgnoreCase))
+                       .ToList();
+
+                if (users != null && users.Any())
+                {
+                    foreach (var user in users)
+                    {
+                        if (!string.IsNullOrEmpty(user.usr_email))
+                        {
+                            string emailUser = user.usr_email;
+                            string emailMessage = $@"
+Yth. {user.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah dilaukan test oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailUser, emailMessage);
+
+                          
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email  kosong untuk user: {user.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & Lanjut BAST" });
             }
@@ -746,7 +877,42 @@ namespace Template_DevExpress_By_MFM.Controllers
 
                 // 🔄 Simpan perubahan
                 GSDbContext.SaveChanges();
-                Console.WriteLine("✅ Perubahan disimpan ke database.");
+
+                var users = GSDbContext.MasterUserForm
+                       .Where(u => u.usr_role != null && u.usr_role.Equals("user", StringComparison.OrdinalIgnoreCase))
+                       .ToList();
+
+                if (users != null && users.Any())
+                {
+                    foreach (var user in users)
+                    {
+                        if (!string.IsNullOrEmpty(user.usr_email))
+                        {
+                            string emailUser = user.usr_email;
+                            string emailMessage = $@"
+Yth. {user.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah dilaukan test oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailUser, emailMessage);
+
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email  kosong untuk user: {user.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
 
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Dokumen BAST berhasil dibuat" });
@@ -813,6 +979,49 @@ namespace Template_DevExpress_By_MFM.Controllers
                 master.dok_tgl_bast_user = DateTime.UtcNow.AddHours(7);
 
                 GSDbContext.SaveChanges();
+
+                var kadeptitUsers = GSDbContext.MasterUserForm
+                       .Where(u => u.usr_role != null && u.usr_role.Equals("kadeptit", StringComparison.OrdinalIgnoreCase))
+                       .ToList();
+
+                if (kadeptitUsers != null && kadeptitUsers.Any())
+                {
+                    foreach (var kadeptit in kadeptitUsers)
+                    {
+                        if (!string.IsNullOrEmpty(kadeptit.usr_email))
+                        {
+                            string emailKadeptit = kadeptit.usr_email;
+                            string emailMessage = $@"
+Yth. {kadeptit.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah disetujui BAST oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailKadeptit, emailMessage);
+
+                            if (emailSent)
+                            {
+                                Console.WriteLine("✅ Email berhasil dikirim ke KadeptIT: " + emailKadeptit);
+                            }
+                            else
+                            {
+                                Console.WriteLine("⚠️ Gagal mengirim email ke: " + emailKadeptit);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email KadeptIT kosong untuk user: {kadeptit.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD disimpan" });
             }
@@ -882,5 +1091,37 @@ namespace Template_DevExpress_By_MFM.Controllers
         }
 
 
+         private static bool SendEmailNotification(string recipientEmail, string message)
+        {
+            try
+            {
+                Console.WriteLine("📨 Mengirim email ke: " + recipientEmail);
+
+                using (var client = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    client.Credentials = new NetworkCredential("opalrohman11@gmail.com", "ghzb xdku sunz hmtn");
+                    client.EnableSsl = true;
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress("opalrohman11@gmail.com"),
+                        Subject = "Pemberitahuan Persetujuan Dokumen",
+                        Body = message,
+                        IsBodyHtml = false
+                    };
+
+                    mailMessage.To.Add(recipientEmail);
+                    client.Send(mailMessage);
+                }
+
+                Console.WriteLine("✅ Email sukses dikirim ke: " + recipientEmail);
+                return true; // Email berhasil dikirim
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Gagal mengirim email: " + ex.Message);
+                return false; // Email gagal dikirim
+            }
+        }
     }
 }
