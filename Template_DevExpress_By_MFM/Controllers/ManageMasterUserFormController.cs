@@ -46,7 +46,7 @@ namespace Template_DevExpress_By_MFM.Controllers
 
                 return Request.CreateResponse(HttpStatusCode.OK, new
                 {
-                    usr_nama = user.usr_nama,           // ⬅️ Tambahkan baris ini
+                    usr_nama = user.usr_nama,           
                     usr_plant = user.usr_plant,
                     usr_section = user.usr_section,
                     usr_npk = user.usr_npk
@@ -57,6 +57,36 @@ namespace Template_DevExpress_By_MFM.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("api/ManageMasterUserForm/GetUserByName")]
+        public HttpResponseMessage GetUserByName(string usr_nama)
+        {
+            try
+            {
+                var user = GSDbContext.MasterUserForm
+                            .FirstOrDefault(u => u.usr_nama.ToLower() == usr_nama.ToLower());
+
+                if (user == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, new
+                {
+                    id_user = user.id_user,
+                    usr_nama = user.usr_nama,
+                    usr_npk = user.usr_npk,
+                    usr_section = user.usr_section,
+                    usr_plant = user.usr_plant
+                });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
 
 
         [SessionCheck]

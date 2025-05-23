@@ -175,8 +175,10 @@
      .Type(GridCommandColumnType.Buttons)
      .Buttons(b =>
      {
-         b.Add().CssClass("btn-edit").Icon("edit").Hint("Edit Data").OnClick("functionShowPopupEdit");
-         b.Add().CssClass("btn-delete").Icon("trash").Hint("Delete Data").OnClick("functionShowPopupEdit");
+         b.Add().CssClass("btn-edit").Icon("edit").Hint("Edit Data")
+ .OnClick("function(e) { clickPopupEdit(e.row.data); }");
+         b.Add().CssClass("btn-delete").Icon("trash").Hint("Delete Data")
+.OnClick("function(e) { deleteData(e.row.data); }");
          b.Add().CssClass("btn-detail").Icon("info").Hint("Info Detail")
  .OnClick("function(e) { showInfoAdminPopup(" +
      "e.row.data.dok_refnum, e.row.data.usr_npk, e.row.data.usr_nama, e.row.data.dok_user_erp, " +
@@ -562,6 +564,9 @@
 
                 items.AddSimple().Label(label => label.Text("Request By"))
                     .Editor(e => e.TextBox().ID("txtDokReqBy").ReadOnly(true));
+
+                items.AddSimple().Label(label => label.Text("Status"))
+                    .Editor(e => e.TextBox().ID("txtStatus").ReadOnly(true));
 
 
             })
@@ -1400,20 +1405,28 @@
                     console.log("📦 Payload final:", formData);
 
                     $.ajax({
-                        url: "/api/ManageMasterDokumenRequestP3sp",
-                        type: "POST",
+                        url: isEditMode
+                            ? `/api/ManageMasterDokumenRequestP3sp/${currentDokId}`
+                            : "/api/ManageMasterDokumenRequestP3sp",
+                        type: isEditMode ? "PUT" : "POST",
                         contentType: "application/json",
                         data: JSON.stringify(formData),
                         success: function (response) {
                             DevExpress.ui.notify(response.Message, "success", 1500);
+                            refreshTableDevExpress();
+                            const popupInstance = $("#form-scheduled").dxPopup("instance");
+                            if (popupInstance) {
+                                popupInstance.hide();
+                            }
 
-                            // 🔁 Tunggu sebentar, lalu refresh halaman penuh
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1600);
+                            // ✅ Reset form ke nilai default
+                            const formInstance = $("#form-data").dxForm("instance");
+                            if (formInstance) {
+                                formInstance.resetValues(); // reset semua nilai ke default
+                            }
                         },
                         error: function (xhr) {
-                            DevExpress.ui.notify("Terjadi kesalahan: " + xhr.responseText, "error", 3000);
+                            DevExpress.ui.notify("❌ Error: " + xhr.responseText, "error", 3000);
                         }
                     });
                 }
@@ -2274,6 +2287,8 @@
             }
 
 
+            
+
                 function showInfoAdminPopup(
                     dok_refnum,
                     usrNpk,
@@ -2282,6 +2297,7 @@
                     dokPlant,
                     dokSection,
                     dokReqBy,
+                    dokStatus,
                    
                 ) {
                     const popupElement = document.getElementById("detail-popup");
@@ -2312,6 +2328,8 @@
                         "#txtDokPlant": dokPlant,
                         "#txtDokSection": dokSection,
                         "#txtDokReqBy": usrNama,
+                        "#txtStatus": statusMap[dokStatus] || "-",
+
                        
                     };
 
@@ -3077,12 +3095,182 @@
                 });
             }
 
+            let isEditMode = false;
+            let currentDokId = null;
+            let savedLampiranBase64 = null;
 
-            function clickPopup() {
+            async function clickPopup() {
+                isEditMode = false;
+                currentDokId = null;
 
-                let dataPopUp = document.getElementById("form-scheduled");
-                let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
+                // Reset semua field form ke default / kosong
+                $("#reference_number").dxTextBox("instance").option("value", "");
+
+                // Jika kamu punya fungsi async generate nomor referensi baru, panggil di sini
+                try {
+                    const newRef = await getLastReferenceNumber();
+                    $("#reference_number").dxTextBox("instance").option("value", newRef);
+                } catch (error) {
+                    console.error("❌ Gagal generate nomor referensi:", error);
+                }
+
+                $("#plant").dxTextBox("instance").option("value", "");
+                $("#section_department").dxTextBox("instance").option("value", "");
+                $("#npk").dxTextBox("instance").option("value", "");
+                $("#erp_name").dxTextBox("instance").option("value", "");
+                $("#erp_id").dxTextBox("instance").option("value", "infor"); // default value
+                $("#req_tingkat").dxRadioGroup("instance").option("value", null);
+                $("#req_pengadaan").dxRadioGroup("instance").option("value", null);
+                $("#id_menu").dxTextBox("instance").option("value", "");
+                $("#judul_report").dxTextBox("instance").option("value", "");
+                $("#reason").dxTextBox("instance").option("value", "");
+                $("#spesifikasi").dxTextBox("instance").option("value", "");
+                $("#dokumen").dxTextBox("instance").option("value", "Permintaan Pembuatan dan Perubahan Sistem ERP"); // default tetap ada
+
+                $("#dok_ttd_user").val("");
+
+                // Reset SelectBox id_user
+                const idUserSelectBox = $("#id_user").dxSelectBox("instance");
+                idUserSelectBox.reset();
+
+                // Reset uploader file
+                const lampiranUploader = $("#dok_lampiran").dxFileUploader("instance");
+                lampiranUploader.reset();
+
+                // Reset signature pad jika ada
+                if (typeof signaturePad !== "undefined") {
+                    signaturePad.clear();
+                }
+
+                // Tampilkan popup dengan title Add
+                const popup = DevExpress.ui.dxPopup.getInstance(document.getElementById("form-scheduled"));
+                popup.option("title", "Add Permintaan Pembuatan dan Perubahan Sistem ERP");
                 popup.show();
+            }
+
+
+
+            async function clickPopupEdit(data) {
+                console.log("🧪 Data dari grid (Edit):", data);
+
+                isEditMode = true;
+                currentDokId = data.dok_id; // sesuaikan dengan primary key
+
+                // Set semua field form sesuai data yang diterima
+                $("#reference_number").dxTextBox("instance").option("value", data.dok_refnum ?? "");
+                $("#plant").dxTextBox("instance").option("value", data.dok_plant ?? "");
+                $("#section_department").dxTextBox("instance").option("value", data.dok_section ?? "");
+                $("#npk").dxTextBox("instance").option("value", data.usr_npk ?? "");
+                $("#erp_name").dxTextBox("instance").option("value", data.dok_user_erp ?? "");
+                $("#erp_id").dxTextBox("instance").option("value", data.dok_erp ?? "infor");
+                $("#req_tingkat").dxRadioGroup("instance").option("value", data.dok_tingkat ?? "");
+                $("#req_pengadaan").dxRadioGroup("instance").option("value", data.dok_pengadaan ?? "");
+                $("#id_menu").dxTextBox("instance").option("value", data.dok_id_menu ?? "");
+                $("#judul_report").dxTextBox("instance").option("value", data.dok_judul_report ?? "");
+                $("#reason").dxTextBox("instance").option("value", data.dok_reason ?? "");
+                $("#spesifikasi").dxTextBox("instance").option("value", data.dok_spesifikasi ?? "");
+                $("#dokumen").dxTextBox("instance").option("value", data.dok_document ?? "");
+                $("#dok_ttd_user").val(data.dok_ttd_user ?? "");
+
+                // Reset atau tampilkan lampiran lama jika ada
+                const lampiranUploader = $("#dok_lampiran").dxFileUploader("instance");
+                if (data.dok_lampiran) {
+                    // Buat dummy file agar uploader tampil seperti ada file
+                    const dummyFile = {
+                        name: `Lampiran_${data.dok_refnum}.pdf`,
+                        size: Math.round((data.dok_lampiran.length * 3) / 4),
+                        type: "application/pdf",
+                        lastModified: new Date().getTime()
+                    };
+                    lampiranUploader.option("value", [dummyFile]);
+
+                    // Opsional: tampilkan keterangan file lama
+                    setTimeout(() => {
+                        $(".dx-fileuploader-files-container").append(
+                            `<div style="color:gray;font-size:12px;margin-top:4px;">📎 Lampiran lama tersedia</div>`
+                        );
+                    }, 300);
+                } else {
+                    lampiranUploader.reset();
+                }
+
+                const idUserSelectBox = $("#id_user").dxSelectBox("instance");
+                idUserSelectBox.option("value", data.id_user ?? null);
+
+                if (data.id_user) {
+                    idUserSelectBox.option("placeholder", "Memuat nama...");
+                    try {
+                        // Panggil GetUserById, bukan GetUserByName, karena kamu sudah punya id_user
+                        const res = await $.get("/api/ManageMasterUserForm/GetUserById", { id_user: data.id_user });
+                        console.log("✅ Response GetUserById:", res);
+                        if (res && res.usr_nama) {
+                            idUserSelectBox.option("displayValue", res.usr_nama);
+                        } else {
+                            console.warn("⚠️ usr_nama tidak tersedia.");
+                            idUserSelectBox.option("displayValue", "");
+                        }
+                    } catch (xhr) {
+                        console.error("❌ Gagal mengambil nama user:", xhr.responseText);
+                        idUserSelectBox.option("displayValue", "");
+                    } finally {
+                        idUserSelectBox.option("placeholder", "");
+                    }
+                } else if (data.usr_nama) {
+                    // Jika id_user tidak tersedia tapi ada usr_nama, coba panggil GetUserByName
+                    idUserSelectBox.option("placeholder", "Memuat nama...");
+                    try {
+                        const res = await $.get("/api/ManageMasterUserForm/GetUserByName", { usr_nama: data.usr_nama });
+                        if (res && res.id_user) {
+                            idUserSelectBox.option("value", res.id_user);
+                            idUserSelectBox.option("displayValue", res.usr_nama);
+                        } else {
+                            console.warn("⚠️ User tidak ditemukan berdasarkan nama.");
+                            idUserSelectBox.option("value", null);
+                            idUserSelectBox.option("displayValue", "");
+                        }
+                    } catch (xhr) {
+                        console.error("❌ Gagal mengambil id_user dari nama:", xhr.responseText);
+                        idUserSelectBox.option("value", null);
+                        idUserSelectBox.option("displayValue", "");
+                    } finally {
+                        idUserSelectBox.option("placeholder", "");
+                    }
+                } else {
+                    console.warn("⚠️ ID user dan usr_nama tidak tersedia di data.");
+                    idUserSelectBox.option("value", null);
+                    idUserSelectBox.option("displayValue", "");
+                }
+
+                // Tampilkan popup dengan title edit
+                const popup = DevExpress.ui.dxPopup.getInstance(document.getElementById("form-scheduled"));
+                popup.option("title", "Edit Permintaan Pembuatan dan Perubahan Sistem ERP");
+                popup.show();
+            }
+
+
+            function deleteData(data) {
+                if (!data || !data.dok_id) {
+                    DevExpress.ui.notify("Data tidak valid untuk dihapus.", "error", 2000);
+                    return;
+                }
+
+                DevExpress.ui.dialog.confirm("Yakin ingin menghapus data ini?", "Konfirmasi Hapus")
+                    .done(function (confirmed) {
+                        if (confirmed) {
+                            $.ajax({
+                                url: `/api/ManageMasterDokumenRequestP3sp/${data.dok_id}`,
+                                type: "DELETE",
+                                success: function (response) {
+                                    DevExpress.ui.notify("Data berhasil dihapus.", "success", 1500);
+                                    // Refresh DataGrid atau table kamu
+                                    refreshTableDevExpress();
+                                },
+                                error: function (xhr) {
+                                    DevExpress.ui.notify("Gagal menghapus data: " + xhr.responseText, "error", 3000);
+                                }
+                            });
+                        }
+                    });
             }
 
 
