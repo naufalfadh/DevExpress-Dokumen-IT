@@ -279,43 +279,38 @@
 
     </div>
 
+
     @(Html.DevExtreme().Popup()
-.ID("approveit-popup")
-.Visible(false)
-.Width(350)
-.Height(200)
-.DragEnabled(true)
-.Position(PositionAlignment.Center)
-.Container(".dx-viewport")
-.ShowTitle(true)
-.Title("Confirmation Approve")
-.Content(@<text>
-    Are you sure you want to approve IT this record?
-</text>)
-.ShowCloseButton(false)
-.ToolbarItems(items =>
-{
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.Before)
-        .Widget(widget => widget.Button()
-            .Text("Yes")
-            .OnClick("functionBtnApproveIt"));
+    .ID("approveit-popup")
+    .Visible(false)
+    .Width(350)
+    .Height(200)
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .Title("Confirmation Approve")
+    .ShowCloseButton(false)
+    .ToolbarItems(items =>
+    {
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.Before)
+            .Widget(widget => widget.Button()
+                .Text("Yes")
+                .OnClick("functionBtnApproveIt"));
 
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.After)
-        .Widget(widget => widget.Button()
-            .Text("No")
-            .OnClick(@<text>
-                function hideInfo() {
-                    $("#approveit-popup").dxPopup("instance").hide();
-                }
-            </text>));
-})
-   );
-
-
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.After)
+            .Widget(widget => widget.Button()
+                .Text("No")
+                .OnClick("function() { $('#approveit-popup').dxPopup('instance').hide(); }"));
+    })
+    .Content(@<text>
+        <div id="approveit-popup-content"></div>
+    </text>)
+)
     @(Html.DevExtreme().Popup()
     .ID("reject-popup")
     .Width(800)
@@ -913,7 +908,7 @@
                 let signaturePad;
                 $(document).ready(function () {
                     // 🔒 Sembunyikan semua popup saat awal load
-                    const popupIds = ["form-scheduled", "detail-popup", "accadmin-popup"];
+                    const popupIds = ["form-scheduled", "detail-popup", "accadmin-popup", "approveit-popup", "grid-detail-popup", "reject-popup", "approve-popup", "apporveuser-popup", "approvekadeptit-popup", "accadmin-popup", "accbast-popup"];
                     popupIds.forEach(id => {
                         const popupEl = document.getElementById(id);
                         if (popupEl) {
@@ -1585,7 +1580,7 @@
 
                         if (ttdData) {
                             // Gambar kotak merah dulu untuk debug posisi
-                          
+
                             try {
                                 doc.addImage(
                                     ttdData,
@@ -2402,27 +2397,30 @@
                     } else {
                         approveButton.prop("disabled", false);
                     }
-                }
+            }
 
+            function approveItContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve IT this record?");
+            }
+
+            $(function () {
+                // Set contentTemplate option secara manual di client side
+                $("#approveit-popup").dxPopup("instance").option("contentTemplate", approveItContentTemplate);
+            });
 
 
             function showApproveItPopup(dokId, dokStatus) {
-                let dataPopUp = document.getElementById("approveit-popup");
-                let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
-
-                if (dokStatus === undefined || dokStatus === null) {
-                    dokStatus = -1; // Jika tidak ada status, beri nilai default -1
-                }
+                let popup = $("#approveit-popup").dxPopup("instance");
 
                 popup.option({
                     dokId: dokId,
-                    dokStatus: dokStatus // Pastikan dokStatus tersimpan di popup
+                    dokStatus: dokStatus ?? -1
                 });
-
-                console.log("Popup dibuka dengan Dokumen ID:", dokId, "Status:", dokStatus);
 
                 popup.show();
             }
+
+
 
             function functionBtnApproveIt() {
                 let dataPopUp = document.getElementById("approveit-popup");
