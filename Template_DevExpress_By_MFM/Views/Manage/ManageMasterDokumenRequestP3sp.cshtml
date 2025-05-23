@@ -75,6 +75,12 @@
                 color: white !important;
             }
 
+    .dx-form-layout-item {
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+    }
+
+
 
 </style>
 
@@ -180,14 +186,27 @@
          b.Add().CssClass("btn-delete").Icon("trash").Hint("Delete Data")
 .OnClick("function(e) { deleteData(e.row.data); }");
          b.Add().CssClass("btn-detail").Icon("info").Hint("Info Detail")
- .OnClick("function(e) { showInfoAdminPopup(" +
-     "e.row.data.dok_refnum, e.row.data.usr_npk, e.row.data.usr_nama, e.row.data.dok_user_erp, " +
-     "e.row.data.dok_plant, e.row.data.dok_section, e.row.data.dok_erp, e.row.data.dok_req_modul, " +
-     "e.row.data.dok_req_by, e.row.data.dok_status, '', '', '', '', " + // Kosongkan field menu untuk grid
-     "e.row.data.dok_reason, e.row.data.createBy, e.row.data.modifBy, e.row.data.createDate, " +
-     "e.row.data.modifDate, e.row.data.dok_lampiran, e.row.data.dok_document, e.row.data.dok_approve_k, " +
-     "e.row.data.DetailDokumenRequests, e.row.data.dok_reason_reject," +
-"); }");
+   .OnClick(@"function(e) {
+    const data = e.row.data;
+
+    showInfoAdminPopup(
+        data.dok_refnum,
+        data.usr_npk,
+        data.usr_nama,
+        data.dok_user_erp,
+        data.dok_plant,
+        data.dok_section,
+        data.dok_req_by,
+        data.dok_status,
+        data.dok_tingkat,
+        data.dok_pengadaan,
+        data.dok_id_menu,
+        data.dok_judul_report,
+        data.dok_reason,
+        data.dok_spesifikasi,
+        data.DetailDokumenRequestP3sp // <--- kirim detail array
+    );
+}");
 
 
          b.Add().CssClass("btn-approve").Icon("check").Hint("Approval Data")
@@ -249,7 +268,7 @@
         </div>
 
 
-        
+
     </div>
 
     @(Html.DevExtreme().Popup()
@@ -538,44 +557,100 @@
     .HideOnParentScroll(true)
     .Title("Detail Permintaan Pembuatan Dan Perubahan Sistem ERP")
     .Content(@<text>
-        @(Html.DevExtreme().Form()
-            .ID("formDetail")
-            .ColCount(2)
-            .Items(items =>
-            {
-                // Informasi Utama
-                items.AddSimple().Label(label => label.Text("Reference Number"))
-                    .Editor(e => e.TextBox().ID("txtDokRefnum").ReadOnly(true));
+        <div style="max-height: 600px; overflow-y: auto;">
+            @(Html.DevExtreme().Form()
+                .ID("formDetail")
+                .ColCount(2)
+                .Items(items =>
+                {
+                    // Informasi Utama
+                    items.AddSimple().Label(label => label.Text("Reference Number"))
+                        .Editor(e => e.TextBox().ID("txtDokRefnum").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("NPK"))
-                    .Editor(e => e.TextBox().ID("txtUsrNpk").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("NPK"))
+                        .Editor(e => e.TextBox().ID("txtUsrNpk").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Nama"))
-                    .Editor(e => e.TextBox().ID("txtUsrNama").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Nama"))
+                        .Editor(e => e.TextBox().ID("txtUsrNama").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("User ERP"))
-                    .Editor(e => e.TextBox().ID("txtDokUserErp").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("User ERP"))
+                        .Editor(e => e.TextBox().ID("txtDokUserErp").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Plant"))
-                    .Editor(e => e.TextBox().ID("txtDokPlant").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Plant"))
+                        .Editor(e => e.TextBox().ID("txtDokPlant").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Section"))
-                    .Editor(e => e.TextBox().ID("txtDokSection").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Section"))
+                        .Editor(e => e.TextBox().ID("txtDokSection").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Request By"))
-                    .Editor(e => e.TextBox().ID("txtDokReqBy").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Request By"))
+                        .Editor(e => e.TextBox().ID("txtDokReqBy").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Status"))
-                    .Editor(e => e.TextBox().ID("txtStatus").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Status"))
+                        .Editor(e => e.TextBox().ID("txtStatus").ReadOnly(true));
 
+                    items.AddSimple().Label(label => label.Text("Tingkat Kepentingan"))
+                        .Editor(e => e.TextBox().ID("txtTingkat").ReadOnly(true));
 
-            })
-            .LabelLocation(FormLabelLocation.Left)
-            .ReadOnly(false)
-            .ShowColonAfterLabel(true)
-        )
+                    items.AddSimple().Label(label => label.Text("Mohon Diadakan"))
+                        .Editor(e => e.TextBox().ID("txtDiadakan").ReadOnly(true));
 
+                    items.AddSimple().Label(label => label.Text("ID Menu"))
+                        .Editor(e => e.TextBox().ID("txtIdMenu").ReadOnly(true));
 
+                    items.AddSimple().Label(label => label.Text("Judul Report"))
+                        .Editor(e => e.TextBox().ID("txtJudul").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Alasan Permintaan"))
+                        .Editor(e => e.TextArea().ID("txtAlasan").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Spesifikasi User"))
+                        .Editor(e => e.TextArea().ID("txtSpesifikasi").ReadOnly(true));
+
+                    items.AddSimple()
+                        .Label(label => label.Text("ANALISA"))
+                        .ColSpan(2);
+
+                    items.AddSimple().Label(label => label.Text("Dampak Report Terhadap"))
+                        .ColSpan(2);
+
+                    items.AddSimple().Label(label => label.Text("Quality"))
+                        .Editor(e => e.TextBox().ID("txtDokQuality").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Cost"))
+                        .Editor(e => e.TextBox().ID("txtDokCost").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Delivery"))
+                        .Editor(e => e.TextBox().ID("txtDokDelivery").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Safety"))
+                        .Editor(e => e.TextBox().ID("txtDokSafety").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Morale"))
+                        .Editor(e => e.TextBox().ID("txtDokMorale").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Productivity"))
+                        .Editor(e => e.TextBox().ID("txtDokProductivity").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Tingkat Kesulitan"))
+                        .Editor(e => e.TextBox().ID("txtDokKesulitan").ReadOnly(true)).ColSpan(2);
+
+                    items.AddSimple().Label(label => label.Text("Score"))
+                        .Editor(e => e.TextBox().ID("txtDokScore").ReadOnly(true)).ColSpan(2);
+
+                    items.AddSimple().Label(label => label.Text("PIC"))
+                        .Editor(e => e.TextBox().ID("txtDokPIC").ReadOnly(true)).ColSpan(2);
+
+                    items.AddSimple().Label(label => label.Text("Prioritas"))
+                        .Editor(e => e.TextBox().ID("txtDokPrioritas").ReadOnly(true));
+
+                    items.AddSimple().Label(label => label.Text("Due Date"))
+                        .Editor(e => e.DateBox().ID("txtDokDueDate").ReadOnly(true));
+                })
+                .LabelLocation(FormLabelLocation.Left)
+                .ReadOnly(false)
+                .ShowColonAfterLabel(true)
+            )
+        </div>
     </text>)
     .ShowCloseButton(true)
 )
@@ -1725,7 +1800,7 @@
                     doc.setFontSize(10);
                     doc.setFont('Tahoma', 'bold');
 
-                    // ID MENU 
+                    // ID MENU
                     doc.text(`ID MENU                                 :`, 15, 77);
                     const idMenuValue = selectedRow.dok_id_menu || "Tidak ada ID Menu";
                     doc.setFont('Tahoma', 'normal');
@@ -1966,7 +2041,7 @@
                     doc.text("Due Date                      :", 120, yIT + 37);
                     doc.text(formattedDueDate, 160, yIT + 37);
 
-                    doc.text(`HASIL ANALISA      `, 15, yIT + 42);   
+                    doc.text(`HASIL ANALISA      `, 15, yIT + 42);
                     const boxX1 = 15;
                     const boxY1 = yIT + 44;
                     const boxWidth1 = 130;
@@ -2250,7 +2325,7 @@
                     doc.setLineWidth(0.5);
                     doc.rect(5, 5, 200, 290);
 
-             
+
                     const blob = doc.output("blob");
                     const url = URL.createObjectURL(blob);
 
@@ -2286,66 +2361,118 @@
                 return `${day}-${monthName}-${year}`;
             }
 
+            function showInfoAdminPopup(
+                dok_refnum,
+                usrNpk,
+                usrNama,
+                dokUserErp,
+                dokPlant,
+                dokSection,
+                dokReqBy,
+                dokStatus,
+                dokTingkat,
+                dokDiadakan,
+                dokIdMenu,
+                dokJudul,
+                dokAlasan,
+                dokSpesifikasi,
+                detailData
+            ) {
+                const popupElement = document.getElementById("detail-popup");
+                const popup = DevExpress.ui.dxPopup.getInstance(popupElement);
 
-            
+                const statusMap = {
+                    0: "Waiting Approval Kadept",
+                    1: "Waiting Approval Kadept IT",
+                    2: "Reject",
+                    3: "On Progress",
+                    4: "Waiting BAST",
+                    5: "Waiting BAST User",
+                    6: "Waiting BAST Kadept IT",
+                    7: "Done",
+                    8: "Waiting Analisis",
+                    9: "Waiting Approval Business Analyst",
+                    10: "Waiting Testing",
+                    11: "Waiting Approve Testing User"
+                };
 
-                function showInfoAdminPopup(
-                    dok_refnum,
-                    usrNpk,
-                    usrNama,
-                    dokUserErp,
-                    dokPlant,
-                    dokSection,
-                    dokReqBy,
-                    dokStatus,
-                   
-                ) {
-                    const popupElement = document.getElementById("detail-popup");
-                    const popup = DevExpress.ui.dxPopup.getInstance(popupElement);
+                // === MASTER FIELD SET ===
+                const fieldValues = {
+                    "#txtDokRefnum": dok_refnum,
+                    "#txtUsrNpk": usrNpk,
+                    "#txtUsrNama": usrNama,
+                    "#txtDokUserErp": dokUserErp,
+                    "#txtDokPlant": dokPlant,
+                    "#txtDokSection": dokSection,
+                    "#txtDokReqBy": usrNama,
+                    "#txtStatus": statusMap[dokStatus] || "-",
+                    "#txtTingkat": dokTingkat,
+                    "#txtDiadakan": dokDiadakan,
+                    "#txtIdMenu": dokIdMenu,
+                    "#txtJudul": dokJudul,
+                    "#txtAlasan": dokAlasan,
+                    "#txtSpesifikasi": dokSpesifikasi,
+                };
 
-                    const statusMap = {
-                        0: "Waiting Approval Kadept",
-                        1: "Waiting Approval Kadept IT",
-                        2: "Reject",
-                        3: "On Progress",
-                        4: "Waiting BAST",
-                        5: "Waiting BAST User",
-                        6: "Waiting BAST Kadept IT",
-                        7: "Done",
-                        8: "Waiting Analisis",
-                        9: "Waiting Approval Business Analyst",
-                        10: "Waiting Testing",
-                        11: "Waiting Approve Testing User"
+                for (const selector in fieldValues) {
+                    const value = fieldValues[selector];
+                    let instance = null;
 
-                    };
-
-                    // Set semua field TextBox
-                    const fieldValues = {
-                        "#txtDokRefnum": dok_refnum,
-                        "#txtUsrNpk": usrNpk,
-                        "#txtUsrNama": usrNama,
-                        "#txtDokUserErp": dokUserErp,
-                        "#txtDokPlant": dokPlant,
-                        "#txtDokSection": dokSection,
-                        "#txtDokReqBy": usrNama,
-                        "#txtStatus": statusMap[dokStatus] || "-",
-
-                       
-                    };
-
-                    for (const selector in fieldValues) {
-                        const instance = $(selector).dxTextBox("instance");
-                        if (instance) {
-                            instance.option("value", fieldValues[selector]);
-                        } else {
-                            console.warn("⚠️ TextBox tidak ditemukan:", selector);
-                        }
+                    if (selector === "#txtAlasan" || selector === "#txtSpesifikasi") {
+                        instance = $(selector).dxTextArea("instance");
+                    } else {
+                        instance = $(selector).dxTextBox("instance");
                     }
 
-                  
-
-                    popup.show();
+                    if (instance) {
+                        instance.option("value", value);
+                    } else {
+                        console.warn(`⚠️ Field not found or not initialized: ${selector}`);
+                    }
                 }
+
+                // === DETAIL FIELD SET (AMBIL DATA PERTAMA SAJA) ===
+                if (detailData && detailData.length > 0) {
+                    const detail = detailData[0]; // bisa looping kalau >1, ini ambil satu contoh dulu
+
+                    const detailFields = {
+                        "#txtDokQuality": detail.dok_quality,
+                        "#txtDokCost": detail.dok_cost,
+                        "#txtDokDelivery": detail.dok_delivery,
+                        "#txtDokSafety": detail.dok_safety,
+                        "#txtDokMorale": detail.dok_morale,
+                        "#txtDokProductivity": detail.dok_productivity,
+                        "#txtDokKesulitan": detail.dok_tingkat_kesulitan,
+                        "#txtDokScore": detail.dok_score,
+                        "#txtDokPIC": detail.dok_pic,
+                        "#txtDokPrioritas": detail.dok_prioritas,
+                        "#txtDokDueDate": detail.dok_due_date // gunakan DateBox jika tanggal
+                    };
+
+                    for (const selector in detailFields) {
+                        const value = detailFields[selector];
+                        let instance = null;
+
+                        if (selector === "#txtDokDueDate") {
+                            instance = $(selector).dxDateBox("instance");
+                        } else {
+                            instance = $(selector).dxTextBox("instance");
+                        }
+
+                        if (instance) {
+                            instance.option("value", value);
+                        } else {
+                            console.warn(`⚠️ Detail field not found or not initialized: ${selector}`);
+                        }
+                    }
+                } else {
+                    console.warn("⚠️ Detail data tidak ditemukan atau kosong");
+                }
+
+                popup.show();
+            }
+
+
 
             function showRejectPopup(dok_refnum, dok_status, dok_id) {
                 let dataPopUp = document.getElementById("reject-popup");
@@ -2365,7 +2492,7 @@
                 popup.show(); // Pastikan popup ditampilkan dulu
 
                 setTimeout(() => {
-                    let form = $("#rejectStatus").dxForm("instance"); 
+                    let form = $("#rejectStatus").dxForm("instance");
 
                     if (!form) {
                         console.error("Form 'rejectStatus' tidak ditemukan.");
