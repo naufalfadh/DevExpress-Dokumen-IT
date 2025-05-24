@@ -272,79 +272,67 @@
     </div>
 
     @(Html.DevExtreme().Popup()
-.ID("approveit-popup")
-.Visible(false)
-.Width(350)
-.Height(200)
-.DragEnabled(true)
-.Position(PositionAlignment.Center)
-.Container(".dx-viewport")
-.ShowTitle(true)
-.Title("Confirmation Approve")
-.Content(@<text>
-    Are you sure you want to approve IT this record?
-</text>)
-.ShowCloseButton(false)
-.ToolbarItems(items =>
-{
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.Before)
-        .Widget(widget => widget.Button()
-            .Text("Yes")
-            .OnClick("functionBtnApproveIt"));
+    .ID("approveit-popup")
+    .Visible(false)
+    .Width(350)
+    .Height(200)
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .Title("Confirmation Approve")
+    .ShowCloseButton(false)
+    .ToolbarItems(items =>
+    {
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.Before)
+            .Widget(widget => widget.Button()
+                .Text("Yes")
+                .OnClick("functionBtnApproveIt"));
 
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.After)
-        .Widget(widget => widget.Button()
-            .Text("No")
-            .OnClick(@<text>
-                function hideInfo() {
-                    $("#approveit-popup").dxPopup("instance").hide();
-                }
-            </text>));
-})
-   );
-
-
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.After)
+            .Widget(widget => widget.Button()
+                .Text("No")
+                .OnClick("function() { $('#approveit-popup').dxPopup('instance').hide(); }"));
+    })
+    .Content(@<text>
+        <div id="approveit-popup-content"></div>
+    </text>)
+)
     @(Html.DevExtreme().Popup()
-.ID("approvetestuser-popup")
-.Visible(false)
-.Width(350)
-.Height(200)
-.DragEnabled(true)
-.Position(PositionAlignment.Center)
-.Container(".dx-viewport")
-.ShowTitle(true)
-.Title("Confirmation Approve")
-.Content(@<text>
-    Are you sure you want to approve Test User this record?
-</text>)
-.ShowCloseButton(false)
-.ToolbarItems(items =>
-{
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.Before)
-        .Widget(widget => widget.Button()
-            .Text("Yes")
-            .OnClick("functionBtnApproveTestUser"));
+    .ID("approvetestuser-popup")
+    .Visible(false)
+    .Width(350)
+    .Height(200)
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .Title("Confirmation Approve Test User")
+    .Content(@<text>
+        <div id="approvetestuser-popup-content"></div>
+    </text>)
+    .ShowCloseButton(false)
+    .ToolbarItems(items =>
+    {
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.Before)
+            .Widget(widget => widget.Button()
+                .Text("Yes")
+                .OnClick("functionBtnApproveTestUser"));
 
-    items.Add()
-        .Toolbar(Toolbar.Bottom)
-        .Location(ToolbarItemLocation.After)
-        .Widget(widget => widget.Button()
-            .Text("No")
-            .OnClick(@<text>
-                function hideInfo() {
-                    $("#approvetestuser-popup").dxPopup("instance").hide();
-                }
-            </text>));
-})
-   );
-
-
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.After)
+            .Widget(widget => widget.Button()
+                .Text("No")
+                .OnClick("function() { $('#approvetestuser-popup').dxPopup('instance').hide(); }"));
+    })
+)
     @(Html.DevExtreme().Popup()
     .ID("reject-popup")
     .Width(800)
@@ -415,7 +403,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approve-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -432,14 +420,9 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approve-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approve-popup').dxPopup('instance').hide(); }"));
     })
 )
-    )
     @(Html.DevExtreme().Popup()
     .ID("approveba-popup")
     .Visible(false)
@@ -451,7 +434,6 @@
     .ShowTitle(true)
     .Title("Confirmation Approve Business Analyst")
     .Content(@<text>
-        Are you sure you want to approve this record?
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -486,7 +468,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve BAST User")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approveuser-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -503,11 +485,7 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approveuser-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approveuser-popup').dxPopup('instance').hide(); }"));
     })
 )
     @(Html.DevExtreme().Popup()
@@ -521,7 +499,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve BAST Kadept IT SM")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approvekadeptit-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -538,11 +516,7 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approvekadeptit-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approvekadeptit-popup').dxPopup('instance').hide(); }"));
     })
 )
     @(Html.DevExtreme().Popup()
@@ -839,43 +813,28 @@
 
     .ShowCloseButton(true)
 )
-    <!-- Popup Informasi -->
+    <!-- Popup Informasi Skor Dampak -->
     @(Html.DevExtreme().Popup()
     .ID("infoPopup")
     .Width(400)
     .Height(200)
-    .Visible(false)
+    .Visible(false)  // Menjaga popup tidak terlihat saat halaman dimuat
     .DragEnabled(true)
     .Position(PositionAlignment.Center)
     .Title("Skor Dampak")
-    .Content(@<text>
-        <div>
-            <strong>** Score: 1 Dampak Rendah s/d 5 Dampak Tinggi</strong><br />
-            Deskripsi skor: <br />
-            1: Dampak Rendah <br />
-            5: Dampak Tinggi
-        </div>
-    </text>)
+    .ContentTemplate("infoPopupContentTemplate")  // Menggunakan ContentTemplate untuk memuat konten
     .ShowCloseButton(true)
 )
-    <!-- Popup Informasi -->
+    <!-- Popup Informasi Tingkat Kesulitan -->
     @(Html.DevExtreme().Popup()
     .ID("infoPopupp")
     .Width(400)
     .Height(200)
-    .Visible(false)
+    .Visible(false)  // Menjaga popup tidak terlihat saat halaman dimuat
     .DragEnabled(true)
     .Position(PositionAlignment.Center)
     .Title("Skor Dampak")
-    .Content(@<text>
-        <div>
-            <strong>*** Score: Tingkat Kesulitan</strong><br />
-            Deskripsi skor: <br />
-            5: Rendah <br />
-            3: Medium <br />
-            1: Tinggi
-        </div>
-    </text>)
+    .ContentTemplate("infoPopuppContentTemplate")  // Menggunakan ContentTemplate untuk memuat konten
     .ShowCloseButton(true)
 )
     @(Html.DevExtreme().Popup()
@@ -1230,14 +1189,47 @@
                         };
                     }
                 });
+            // Template untuk infoPopup
+            function infoPopupContentTemplate(contentElement) {
+                contentElement.html(`
+        <div>
+            <strong>** Score: 1 Dampak Rendah s/d 5 Dampak Tinggi</strong><br />
+            Deskripsi skor: <br />
+            1: Dampak Rendah <br />
+            5: Dampak Tinggi
+        </div>
+    `);
+            }
 
+            // Template untuk infoPopupp
+            function infoPopuppContentTemplate(contentElement) {
+                contentElement.html(`
+        <div>
+            <strong>*** Score: Tingkat Kesulitan</strong><br />
+            Deskripsi skor: <br />
+            5: Rendah <br />
+            3: Medium <br />
+            1: Tinggi
+        </div>
+    `);
+            }
+
+            // Inisialisasi popup dan set ContentTemplate
+            $(function () {
+                $("#infoPopup").dxPopup("instance").option("contentTemplate", infoPopupContentTemplate);
+                $("#infoPopupp").dxPopup("instance").option("contentTemplate", infoPopuppContentTemplate);
+            });
+
+            // Fungsi untuk membuka popup infoPopup
             function showInfoPopup() {
                 $('#infoPopup').dxPopup('show');
             }
 
+            // Fungsi untuk membuka popup infoPopupp
             function showInfoPopupp() {
                 $('#infoPopupp').dxPopup('show');
             }
+
 
            function calculateTotalScore() {
                 var quality = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_quality").option("value")) || 0;
@@ -2815,6 +2807,23 @@
                 });
             }
 
+            function approveUserPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approveuser-popup").dxPopup("instance").option("contentTemplate", approveUserPopupContentTemplate);
+            });
+
+            function approveKadeptItPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approvekadeptit-popup").dxPopup("instance").option("contentTemplate", approveKadeptItPopupContentTemplate);
+            });
+
+
 
             function showApproveUserPopup(dok_id, dok_status) {
                 let dataPopUp = document.getElementById("approveuser-popup");
@@ -2873,7 +2882,15 @@
                          DevExpress.ui.notify("Terjadi kesalahan: " + xhr.responseText, "error", 3000);
                      }
                  });
-                 }
+            }
+
+            function approvePopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approve-popup").dxPopup("instance").option("contentTemplate", approvePopupContentTemplate);
+            });
 
             function showApprovePopup(dok_id, dok_status) {
                 let dataPopUp = document.getElementById("approve-popup");
@@ -3078,7 +3095,16 @@
                     } else {
                         approveButton.prop("disabled", false);
                     }
-                }
+            }
+
+            function approveTestUserPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve Test User this record?");
+            }
+
+            $(function () {
+                $("#approvetestuser-popup").dxPopup("instance").option("contentTemplate", approveTestUserPopupContentTemplate);
+            });
+
 
             function showApproveTestUserPopup(dok_id, dok_status) {
                 let dataPopUp = document.getElementById("approvetestuser-popup");
@@ -3169,6 +3195,16 @@
 
                 popup.show();
             }
+
+            function approveItContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve IT this record?");
+            }
+
+            $(function () {
+                // Set contentTemplate option secara manual di client side
+                $("#approveit-popup").dxPopup("instance").option("contentTemplate", approveItContentTemplate);
+            });
+
 
             function functionBtnApproveIt() {
                 let dataPopUp = document.getElementById("approveit-popup");

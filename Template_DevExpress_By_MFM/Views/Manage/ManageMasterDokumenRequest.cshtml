@@ -381,7 +381,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approve-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -398,11 +398,7 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approve-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approve-popup').dxPopup('instance').hide(); }"));
     })
 )
     @(Html.DevExtreme().Popup()
@@ -416,7 +412,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve BAST User")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approveuser-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -433,11 +429,7 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approveuser-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approveuser-popup').dxPopup('instance').hide(); }"));
     })
 )
     @(Html.DevExtreme().Popup()
@@ -451,7 +443,7 @@
     .ShowTitle(true)
     .Title("Confirmation Approve BAST Kadept IT SM")
     .Content(@<text>
-        Are you sure you want to approve this record?
+        <div id="approvekadeptit-popup-content"></div>
     </text>)
     .ShowCloseButton(false)
     .ToolbarItems(items =>
@@ -468,11 +460,7 @@
             .Location(ToolbarItemLocation.After)
             .Widget(widget => widget.Button()
                 .Text("No")
-                .OnClick(@<text>
-                    function hideInfo() {
-                        $("#approvekadeptit-popup").dxPopup("instance").hide();
-                    }
-                </text>));
+                .OnClick("function() { $('#approvekadeptit-popup').dxPopup('instance').hide(); }"));
     })
 )
     @(Html.DevExtreme().Popup()
@@ -553,8 +541,11 @@
 
         <!-- ✅ Tambahkan DataGrid Detail di bawah form -->
         <br />
-        <div><b>Detail Menu / Session</b></div>
-        <div id="grid-detail-popup" style="margin-top: 10px;"></div>
+        <div id="detail-section" style="display: none;">
+    <div><b>Detail Menu / Session</b></div>
+    <div id="grid-detail-popup" style="margin-top: 10px;"></div>
+</div>
+
 
     </text>)
     .ShowCloseButton(true)
@@ -1035,7 +1026,7 @@
                     const row = $(e.rowElement);
 
                     const hideRejectForStatuses = [1, 2, 3, 5, 6, 7];
-                    const hideApproveForStatuses = [1, 2, 5, 6, 7];
+                    const hideApproveForStatuses = [1, 2, 3,  5, 6, 7];
                     const hideRejectItForStatuses = [0, 2, 3, 5, 6, 7];
                     const hideApproveItForStatuses = [0, 2, 3, 5, 6, 7];
                     const hideAdminBastForStatuses = [0, 1, 2, 3, 5, 6, 7];
@@ -1196,35 +1187,41 @@
                     }
                 });
             }
+            $("#detail-section").hide();
 
+            function loadDetailGrid(dataSource) {
+                const container = document.getElementById("grid-detail-popup");
+                const detailSection = document.getElementById("detail-section");
 
-
-                function loadDetailGrid(dataSource) {
-                    const container = document.getElementById("grid-detail-popup");
-                    if (!container) {
-                        console.warn("📛 Elemen #grid-detail-popup tidak ditemukan!");
-                        return;
-                    }
-
-                    const oldGrid = DevExpress.ui.dxDataGrid.getInstance(container);
-                    if (oldGrid) {
-                        oldGrid.dispose();
-                    }
-
-                    $("#grid-detail-popup").dxDataGrid({
-                        dataSource: dataSource || [],
-                        showBorders: true,
-                        columns: [
-                            { dataField: "dok_menu", caption: "Menu" },
-                            { dataField: "dok_id_menu", caption: "ID Menu" },
-                            { dataField: "dok_access", caption: "Access" },
-                            { dataField: "dok_note", caption: "Note" }
-                        ],
-                        paging: { enabled: false },
-                        columnAutoWidth: true,
-                        wordWrapEnabled: true
-                    });
+                if (!container) {
+                    console.warn("📛 Elemen #grid-detail-popup tidak ditemukan!");
+                    return;
                 }
+
+                // Sembunyikan kontainer sebelumnya jika sudah ada
+                const oldGrid = DevExpress.ui.dxDataGrid.getInstance(container);
+                if (oldGrid) {
+                    oldGrid.dispose();
+                }
+
+                // Tampilkan "Detail Menu / Session" dan DataGrid
+                $(detailSection).show(); // Menampilkan label dan DataGrid
+
+                // Inisialisasi DataGrid
+                $(container).dxDataGrid({
+                    dataSource: dataSource || [],  // Data grid diisi dengan data yang diberikan
+                    showBorders: true,
+                    columns: [
+                        { dataField: "dok_menu", caption: "Menu" },
+                        { dataField: "dok_id_menu", caption: "ID Menu" },
+                        { dataField: "dok_access", caption: "Access" },
+                        { dataField: "dok_note", caption: "Note" }
+                    ],
+                    paging: { enabled: false },
+                    columnAutoWidth: true,
+                    wordWrapEnabled: true
+                });
+            }
 
 
 
@@ -2398,6 +2395,33 @@
                         approveButton.prop("disabled", false);
                     }
             }
+
+            function approvePopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approve-popup").dxPopup("instance").option("contentTemplate", approvePopupContentTemplate);
+            });
+
+
+            function approveUserPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approveuser-popup").dxPopup("instance").option("contentTemplate", approveUserPopupContentTemplate);
+            });
+
+            function approveKadeptItPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve this record?");
+            }
+
+            $(function () {
+                $("#approvekadeptit-popup").dxPopup("instance").option("contentTemplate", approveKadeptItPopupContentTemplate);
+            });
+
+
 
             function approveItContentTemplate(contentElement) {
                 contentElement.text("Are you sure you want to approve IT this record?");
