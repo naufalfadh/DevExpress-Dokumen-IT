@@ -957,12 +957,10 @@
                 .ID("erp_name")
                 .MaxLength(8)
             )
-            .ValidationRules(rules =>
-            {
-                rules.AddPattern()
-                    .Pattern(@"^.{0,8}$")
-                    .Message("Maksimal 8 karakter.");
-            })
+             .ValidationRules(rules =>
+             {
+                 rules.AddRequired().Message("ERP Name Wajib diisi");
+             })
             .ColSpan(1);
 
             items.AddSimple()
@@ -973,9 +971,21 @@
                  .Value("infor"))
              .ColSpan(1);
 
-            items.AddSimple().Label(label => label.Text("Tingkat Kepentingan")).Editor(e => e.RadioGroup().Items(priorities).Value("").Layout(Orientation.Horizontal).ID("req_tingkat")).ColSpan(1);
+            items.AddSimple().Label(label => label.Text("Tingkat Kepentingan")).Editor(e => e.RadioGroup().Items(priorities).Value("").Layout(Orientation.Horizontal).ID("req_tingkat"))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Tingkat Kepentingan wajib dipilih");
+            })
+
+            .ColSpan(1);
             items.AddSimple().Label(label => label.Text("NPK")).Editor(e => e.TextBox().ID("npk").ReadOnly(true)).ColSpan(1);
-            items.AddSimple().Label(label => label.Text("Mohon Diadakan")).Editor(e => e.RadioGroup().Items(pengadaan).Value("").Layout(Orientation.Horizontal).ID("req_pengadaan")).ColSpan(1);
+            items.AddSimple().Label(label => label.Text("Mohon Diadakan")).Editor(e => e.RadioGroup().Items(pengadaan).Value("").Layout(Orientation.Horizontal).ID("req_pengadaan"))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Jenis permintaan wajib dipilih");
+            })
+
+            .ColSpan(1);
 
             items.AddSimple().Label(label => label.Text("Dokumen")).Editor(e => e.TextBox().ID("dokumen")).ColSpan(2);
             items.AddSimple()
@@ -984,17 +994,36 @@
                     .ID("id_menu")
 
                 )
-                .ValidationRules(rules =>
-                {
-                    rules.AddPattern()
-                        .Pattern(@"^.{0,20}$")
-                        .Message("Maksimal 20 karakter.");
-                })
-                .ColSpan(1);
-            items.AddSimple().Label(label => label.Text("Judul Report")).Editor(e => e.TextBox().ID("judul_report")).ColSpan(1);
+               .ValidationRules(rules =>
+{
+    rules.AddRequired().Message("ID Menu wajib diisi");
+    rules.AddPattern()
+        .Pattern(@"^.{0,20}$")
+        .Message("Maksimal 20 karakter.");
+})
 
-            items.AddSimple().Label(label => label.Text("Alasan Permintaan")).Editor(e => e.TextBox().ID("reason").Width("100%").Height(100)).ColSpan(2);
-            items.AddSimple().Label(label => label.Text("Spesifikasi User")).Editor(e => e.TextBox().ID("spesifikasi").Width("100%").Height(100)).ColSpan(2);
+                .ColSpan(1);
+            items.AddSimple().Label(label => label.Text("Judul Report")).Editor(e => e.TextBox().ID("judul_report"))
+            .ValidationRules(rules =>
+{
+    rules.AddRequired().Message("Judul Report wajib diisi");
+})
+.ColSpan(1);
+
+            items.AddSimple().Label(label => label.Text("Alasan Permintaan")).Editor(e => e.TextBox().ID("reason").Width("100%").Height(100))
+            .ValidationRules(rules =>
+{
+    rules.AddRequired().Message("Alasan permintaan wajib diisi");
+})
+
+            .ColSpan(2);
+            items.AddSimple().Label(label => label.Text("Spesifikasi User")).Editor(e => e.TextBox().ID("spesifikasi").Width("100%").Height(100))
+            .ValidationRules(rules =>
+{
+    rules.AddRequired().Message("Spesifikasi user wajib diisi");
+})
+
+            .ColSpan(2);
             items.AddSimple().Label(label => label.Text("Lampiran")).Template(new TemplateName("fileUploaderTemplate")).ColSpan(1);
             items.AddSimple().Label(label => label.Text("")).Editor(e => e.TextBox().ID("").ReadOnly(true).Visible(true)).ColSpan(1);
 

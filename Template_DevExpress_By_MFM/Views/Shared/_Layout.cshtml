@@ -176,18 +176,18 @@
                             <a href="@Url.Action("Index", "Home")" class="waves-effect">
                                 <i class="ti-pie-chart"></i><span class="badge badge-primary badge-pill float-right"></span> <span> Dashboard </span>
                             </a>
-                           
+
                         </li>
                         <li class="menu-title">Manage</li>
 
-                            <li>
-                                <a href="javascript:void(0);" class="waves-effect"><i class="ti-harddrives"></i><span> Dokumen Request <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
-                                <ul class="submenu">
-                                    <li><a href="@Url.Action("ManageMasterDokumenRequest", "Manage")"><i class="ti-receipt"></i> Akses Modul/Session ERP</a></li>
-                                    <li><a href="@Url.Action("ManageMasterDokumenRequestP3sp", "Manage")"><i class="ti-agenda"></i> Permintaan Pembuatan dan Perubahan Sistem ERP</a></li>
-                                   
-                                </ul>
-                            </li>
+                        <li>
+                            <a href="javascript:void(0);" class="waves-effect"><i class="ti-harddrives"></i><span> Dokumen Request <span class="float-right menu-arrow"><i class="mdi mdi-chevron-right"></i></span> </span></a>
+                            <ul class="submenu">
+                                <li><a href="@Url.Action("ManageMasterDokumenRequest", "Manage")"><i class="ti-receipt"></i> Akses Modul/Session ERP</a></li>
+                                <li><a href="@Url.Action("ManageMasterDokumenRequestP3sp", "Manage")"><i class="ti-agenda"></i> Permintaan Pembuatan dan Perubahan Sistem ERP</a></li>
+
+                            </ul>
+                        </li>
 
                         @if (logSession.userrole == "admin" || logSession.userrole == "superadmin")
                         {
@@ -217,7 +217,7 @@
             <hr />
             <footer class="footer">
                 <div class="container">
-                    PT. GS Battery &copy; 2021 - Dashboard Portal Marketing - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    PT. GS Battery &copy; 2021 - Dashboard Portal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 </div>
             </footer>
         </div>
@@ -227,7 +227,7 @@
 
 
 
-   
+
     <script src="~/Content/assets/js/bootstrap.bundle.min.js"></script>
     <script src="~/Content/assets/js/metismenu.min.js"></script>
     <script src="~/Content/assets/js/jquery.slimscroll.js"></script>
@@ -239,7 +239,7 @@
 
 
     <script src="~/Content/assets/js/app.js"></script>
-  
+
 </body>
 
 </html>

@@ -119,14 +119,20 @@ namespace Template_DevExpress_By_MFM.Controllers
                 if (!ModelState.IsValid)
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState.GetFullErrorMessage());
 
+                // Validasi NPK unik
+                bool npkExists = GSDbContext.MasterUserForm.Any(u => u.usr_npk == master.usr_npk);
+                if (npkExists)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.Conflict, "NPK sudah digunakan oleh user lain.");
+                }
+
                 master.usr_createDate = DateTime.UtcNow.AddHours(7);
                 master.usr_createBy = sessionLogin.fullname;
 
                 GSDbContext.MasterUserForm.Add(master);
                 GSDbContext.SaveChanges();
-                Console.WriteLine(master.usr_img_ttd);
-                return Request.CreateResponse(HttpStatusCode.Created);
 
+                return Request.CreateResponse(HttpStatusCode.Created);
             }
             catch (Exception ex)
             {
@@ -150,19 +156,26 @@ namespace Template_DevExpress_By_MFM.Controllers
                 if (!ModelState.IsValid)
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState.GetFullErrorMessage());
 
+                // Validasi NPK unik (kecuali dirinya sendiri)
+                bool npkExists = GSDbContext.MasterUserForm
+                    .Any(u => u.usr_npk == master.usr_npk && u.id_user != key);
+                if (npkExists)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.Conflict, "NPK sudah digunakan oleh user lain.");
+                }
+
                 master.usr_modifDate = DateTime.UtcNow.AddHours(7);
                 master.usr_modifBy = sessionLogin.fullname;
+
                 GSDbContext.SaveChanges();
-
                 return Request.CreateResponse(HttpStatusCode.OK);
-
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message.ToString());
             }
-
         }
+
 
         [SessionCheck]
         [HttpDelete]

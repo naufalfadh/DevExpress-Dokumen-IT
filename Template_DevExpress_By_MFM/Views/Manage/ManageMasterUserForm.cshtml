@@ -113,7 +113,6 @@
         border: 1px solid black;
         touch-action: none; /* penting untuk HP/tablet */
     }
-
 </style>
 
 
@@ -181,47 +180,94 @@ columns.Add().Caption("No").AllowEditing(false).Width(80).FormItem(i => i.Visibl
 columns.AddFor(m => m.usr_npk).Caption("NPK")
     .AllowEditing(true)
     .Alignment(HorizontalAlignment.Center)
-    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().MaxLength(6).ReadOnly(false).Disabled(false)));
+    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().MaxLength(6).ReadOnly(false).Disabled(false))
+        .ValidationRules(rules =>
+        {
+            rules.AddRequired().Message("NPK wajib diisi");
+            rules.AddCustom()
+                .ValidationCallback("function(e) { return /^\\d{1,6}$/.test(e.value); }")
+                .Message("NPK harus berupa angka maksimal 6 digit");
+        })
+    );
+
 
 columns.AddFor(m => m.usr_nama).Caption("Nama")
-    .AllowEditing(true)
-    .Alignment(HorizontalAlignment.Center)
-    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+        .AllowEditing(true)
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Nama wajib diisi");
+            })
+        );
 
 columns.AddFor(m => m.usr_plant).Caption("Plant").Alignment(HorizontalAlignment.Center)
-                      .Lookup(lookup => lookup
-                          .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserPlant.json").Key("ID"))
-                          .DisplayExpr("Name")
-                          .ValueExpr("ID")
-                      )
-                      .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+        .Lookup(lookup => lookup
+            .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserPlant.json").Key("ID"))
+            .DisplayExpr("Name")
+            .ValueExpr("ID"))
+        .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Plant wajib dipilih");
+            })
+        );
 
 columns.AddFor(m => m.usr_section).Caption("Section").Alignment(HorizontalAlignment.Center)
-              .Lookup(lookup => lookup
-                  .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserSection.json").Key("ID"))
-                  .DisplayExpr("Name")
-                  .ValueExpr("ID")
-              )
-              .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+      .Lookup(lookup => lookup
+          .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserSection.json").Key("ID"))
+          .DisplayExpr("Name")
+          .ValueExpr("ID"))
+      .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false))
+          .ValidationRules(rules =>
+          {
+              rules.AddRequired().Message("Section wajib dipilih");
+          })
+      );
 
 columns.AddFor(m => m.usr_role).Caption("Role").Alignment(HorizontalAlignment.Center)
-      .Lookup(lookup => lookup
-          .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserRole.json").Key("ID"))
-          .DisplayExpr("Name")
-          .ValueExpr("ID")
-      )
-      .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false)));
+        .Lookup(lookup => lookup
+            .DataSource(d => d.StaticJson().Url("~/Content/json_data/UserRole.json").Key("ID"))
+            .DisplayExpr("Name")
+            .ValueExpr("ID"))
+        .FormItem(i => i.Visible(true).Editor(e => e.SelectBox().SearchEnabled(false))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Role wajib dipilih");
+            })
+        );
 
 columns.AddFor(m => m.usr_pass).Caption("Password")
-    .AllowEditing(true)
-    .Alignment(HorizontalAlignment.Center)
-    .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+        .AllowEditing(true)
+        .Alignment(HorizontalAlignment.Center)
+        .FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false))
+            .ValidationRules(rules =>
+            {
+                rules.AddRequired().Message("Password wajib diisi");
+                rules.AddStringLength().Min(6).Message("Password minimal 6 karakter");
+            })
+        );
+
+columns.AddFor(m => m.usr_email).Caption("Email")
+.AllowEditing(true)
+.Alignment(HorizontalAlignment.Center)
+.FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false))
+    .ValidationRules(rules =>
+    {
+        rules.AddRequired().Message("Email wajib diisi");
+        rules.AddCustom()
+            .ValidationCallback("function(e) { return /^[\\w.-]+@gmail\\.com$/.test(e.value); }")
+            .Message("Hanya email dengan domain @gmail.com yang diperbolehkan");
+    })
+);
+
+
 
 
 columns.AddFor(m => m.usr_createBy).Caption("Create By")
-    .AllowEditing(false)
-    .Alignment(HorizontalAlignment.Center)
-    .FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
+.AllowEditing(false)
+.Alignment(HorizontalAlignment.Center)
+.FormItem(f => f.Visible(false).Editor(e => e.TextBox().Disabled(false)));
 
 columns.AddFor(m => m.usr_createDate).Caption("Create Date")
     .AllowEditing(false)
@@ -258,10 +304,8 @@ columns.AddFor(m => m.usr_img_ttd)
                     <img id="previewSignature" src="" style="max-height: 80px; margin-top: 10px; display:none;" />
                 </div>
             </text>));
-    columns.AddFor(m => m.usr_email).Caption("Email")
-.AllowEditing(true)
-.Alignment(HorizontalAlignment.Center)
-.FormItem(f => f.Visible(true).Editor(e => e.TextBox().Disabled(false).ReadOnly(false)));
+
+
 
 
 
@@ -291,6 +335,9 @@ columns.AddFor(m => m.usr_img_ttd)
     .OnRowClick("onRowClick")
     .OnRowInserting("onRowInserting")
     .OnRowUpdating("onRowUpdating")
+    .OnRowInserted("onRowInserted")
+    .OnRowUpdated("onRowUpdated")
+    .OnRowRemoved("onRowRemoved")
     //.OnCellPrepared("onCellPreparedDataGrid")
     .SearchPanel(f => f.Visible(true))
     .FilterRow(f => f.Visible(false))
@@ -315,6 +362,8 @@ columns.AddFor(m => m.usr_img_ttd)
 @section scripts
 {
     <script src="~/Content/plugins/moment/moment.js"></script>
+    <!-- Tambahkan di layout atau view Anda jika belum -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 
     <script>
@@ -380,6 +429,37 @@ columns.AddFor(m => m.usr_img_ttd)
 
             }, 500); // delay agar form grid sudah render sepenuhnya
         }
+        function onRowInserted(e) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Data berhasil <strong>ditambahkan</strong>!',
+                html: 'Data berhasil <strong>ditambahkan</strong>!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function onRowUpdated(e) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Data berhasil <strong>diperbarui</strong>!',
+                html: 'Data berhasil <strong>diperbarui</strong>!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function onRowRemoved(e) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            html: 'Data berhasil <strong>dihapus</strong>!',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
 
         function onInitNewRow(e) {
             initSignatureCanvas();

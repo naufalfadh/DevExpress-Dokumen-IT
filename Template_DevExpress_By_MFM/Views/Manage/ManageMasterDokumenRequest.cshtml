@@ -154,7 +154,7 @@
  {
      columns.Add().Caption("No").FormItem(i => i.Visible(false)).AllowEditing(false).CellTemplate(new JS("cell_numbering")).Alignment(HorizontalAlignment.Center);
      columns.AddFor(m => m.usr_npk).Caption("NPK").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("usr_npk")).ColSpan(2));
-     columns.AddFor(m => m.usr_nama).Caption("Nama").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("dok_req_by")).ColSpan(1));
+     columns.AddFor(m => m.usr_nama).Caption("Name").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("dok_req_by")).ColSpan(1));
      columns.AddFor(m => m.dok_refnum).Caption("Reference Number").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("dok_refnum")).ColSpan(2));
      columns.AddFor(m => m.createDate).Caption("Tanggal Pengajuan").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("createDate")).ColSpan(1));
      columns.AddFor(m => m.dok_document).Caption("Dokumen Request").Alignment(HorizontalAlignment.Center).FormItem(i => i.IsRequired(true).Editor(e => e.NumberBox().ID("dok_document")).ColSpan(1));
@@ -511,7 +511,7 @@
                 items.AddSimple().Label(label => label.Text("Document"))
                     .Editor(e => e.TextBox().ID("txtDokDocument").ReadOnly(true));
 
-                items.AddSimple().Label(label => label.Text("Lampiran"))
+                items.AddSimple().Label(label => label.Text("Attachment"))
                     .Editor(e => e.TextBox().ID("txtDokLampiran").ReadOnly(true));
 
                 items.AddSimple().Label(label => label.Text("Create By"))
@@ -684,18 +684,26 @@
 
     @using (Html.DevExtreme().NamedTemplate("fileUploaderTemplate"))
     {
-        @(Html.DevExtreme().FileUploader()
-                 .ID("dok_lampiran")
-                 .Name("file_attachment")
-                 .SelectButtonText("Pilih File")
-                 .LabelText("")
-                 .Multiple(false)
-                 .AllowedFileExtensions(new[] { ".pdf" })
-                 .UploadMode(FileUploadMode.UseForm)
-                 .ShowFileList(true)
-                 .OnValueChanged("onFileUploaderValueChanged")
-             )
+        <div>
+            @(Html.DevExtreme().FileUploader()
+              .ID("dok_lampiran")
+              .Name("file_attachment")
+              .SelectButtonText("Pilih File")
+              .LabelText("")
+              .Multiple(false)
+              .AllowedFileExtensions(new[] { ".pdf" })
+              .MaxFileSize(10 * 1024 * 1024) // 10 MB
+              .UploadMode(FileUploadMode.UseForm)
+              .ShowFileList(true)
+              .OnValueChanged("onFileUploaderValueChanged")
+        )
+
+            <div style="font-size: 12px; color: gray; margin-top: 5px;">
+                *Hanya file PDF dan ukuran maksimal 10 MB.
+            </div>
+        </div>
     }
+
 
 
     @(Html.DevExtreme().Popup()
@@ -729,11 +737,8 @@
             .DisplayExpr("usr_nama").ValueExpr("id_user").SearchEnabled(true)
             .ID("id_user")
             .OnValueChanged("onUserSelected"))
-             .ValidationRules(rules =>
-             {
-                 rules.AddRequired().Message("Full Name wajib dipilih");
-             })
              .ColSpan(1);
+
             items.AddSimple().Label(label => label.Text("Section / Department")).Editor(e => e.TextBox().ID("section_department").ReadOnly(true)).ColSpan(1);
             items.AddSimple()
             .Label(label => label.Text("ERP Name"))
@@ -742,7 +747,7 @@
             )
             .ValidationRules(rules =>
             {
-                rules.AddRequired().Message("ERP Name Wajib diisi");
+                rules.AddRequired().Message("ERP Name is required");
             })
             .ColSpan(1);
 
@@ -762,22 +767,19 @@
                 .Layout(Orientation.Horizontal)
                 .ID("req_modul")
             )
-            .ValidationRules(rules =>
-            {
-                rules.AddRequired().Message("Pilih salah satu Required Module / Session");
-            })
             .ColSpan(1);
+
             items.AddSimple().Label(label => label.Text("NPK")).Editor(e => e.TextBox().ID("npk").ReadOnly(true)).ColSpan(1);
 
             // 🔹 Template untuk Grid (ditempatkan di luar Form)
             items.AddSimple().Template(new TemplateName("accessGridTemplate")).ColSpan(2);
 
-            items.AddSimple().Label(label => label.Text("Lampiran")).Template(new TemplateName("fileUploaderTemplate")).ColSpan(1);
+            items.AddSimple().Label(label => label.Text("Attachment")).Template(new TemplateName("fileUploaderTemplate")).ColSpan(1);
             items.AddSimple().Label(label => label.Text("Dokumen")).Editor(e => e.TextBox().ID("dokumen")).ColSpan(2);
             items.AddSimple().Label(label => label.Text("Reason for Request")).Editor(e => e.TextBox().ID("reason").Width("100%").Height(100))
               .ValidationRules(rules =>
               {
-                  rules.AddRequired().Message("Reason for Reqeust Wajib diisi");
+                  rules.AddRequired().Message("Reason for Reqeust is required");
               })
               .ColSpan(2);
             items.AddButton().ColSpan(2).ButtonOptions(b => b.Text("Submit").Type(ButtonType.Default).OnClick("submitForm"));
@@ -1183,8 +1185,19 @@
                         }
                     },
                     error: function (xhr) {
-                        DevExpress.ui.notify("❌ Error: " + xhr.responseText, "error", 3000);
+                        let msg = "An error occurred!";
+                        try {
+                            const json = JSON.parse(xhr.responseText);
+                            if (json.Message) {
+                                msg = json.Message;
+                            }
+                        } catch (e) {
+                            msg = xhr.responseText || msg;
+                        }
+
+                        DevExpress.ui.notify(msg, "error", 3000);
                     }
+
                 });
             }
             $("#detail-section").hide();
@@ -2397,7 +2410,7 @@
             }
 
             function approvePopupContentTemplate(contentElement) {
-                contentElement.text("Are you sure you want to approve this record?");
+                contentElement.text("Apakah anda ingin menyetujui data berikut?");
             }
 
             $(function () {
@@ -2406,7 +2419,7 @@
 
 
             function approveUserPopupContentTemplate(contentElement) {
-                contentElement.text("Are you sure you want to approve this record?");
+                contentElement.text("Apakah anda ingin menyetujui data berikut?");
             }
 
             $(function () {
@@ -2414,7 +2427,7 @@
             });
 
             function approveKadeptItPopupContentTemplate(contentElement) {
-                contentElement.text("Are you sure you want to approve this record?");
+                contentElement.text("Apakah anda ingin menyetujui data berikut?");
             }
 
             $(function () {

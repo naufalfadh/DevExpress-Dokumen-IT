@@ -18,6 +18,7 @@ using System.Web;
 using System.IO;
 using System.Net.Mail;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
+using System.Numerics;
 
 namespace Template_DevExpress_By_MFM.Controllers
 {
@@ -267,20 +268,6 @@ namespace Template_DevExpress_By_MFM.Controllers
                         return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Message = "Session Expired" });
                     }
 
-                    // Validasi requestData tidak boleh null
-                    if (requestData == null)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Data tidak boleh kosong!" });
-                    }
-
-                    // Validasi NPK harus angka dan tidak null
-                    if (requestData.usr_npk == null || requestData.usr_npk == 0)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "NPK harus berupa angka yang valid!" });
-                    }
-
-                    System.Diagnostics.Debug.WriteLine($"📌 Payload Diterima (MasterDokumenRequest): {JsonConvert.SerializeObject(requestData)}");
-
                     // Cek apakah data yang dikirim lengkap
                     if (string.IsNullOrEmpty(requestData.dok_refnum) ||
                         requestData.usr_npk == null ||
@@ -291,11 +278,9 @@ namespace Template_DevExpress_By_MFM.Controllers
                         string.IsNullOrEmpty(requestData.dok_req_modul) ||
                         string.IsNullOrEmpty(requestData.dok_document) ||
                         string.IsNullOrEmpty(requestData.dok_reason))
-                    {
-                        return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Beberapa data master tidak valid atau kosong!" });
+                {
+                        return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Please complete all required fields!" });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"✅ Semua data MasterDokumenRequest valid, siap disimpan.");
 
                     using (var transaction = GSDbContext.Database.BeginTransaction())
                     {
@@ -312,7 +297,7 @@ namespace Template_DevExpress_By_MFM.Controllers
 
                             if (currentUser == null)
                             {
-                                return Request.CreateResponse(HttpStatusCode.NotFound, new { Message = "User login tidak ditemukan di database!" });
+                                return Request.CreateResponse(HttpStatusCode.NotFound, new { Message = "User login not found in database!" });
                             }
 
                             var form = new MasterDokumenRequest
