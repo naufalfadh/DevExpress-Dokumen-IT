@@ -199,9 +199,9 @@
         data.dok_req_by,
         data.dok_status,
         data.dok_tingkat,
-        data.dok_pengadaan,
-        data.dok_id_menu,
-        data.dok_judul_report,
+        data.dok_superuser,
+        data.dok_jenis_pekerjaan,
+        data.dok_jenis_superuser,
         data.dok_reason,
         data.dok_spesifikasi,
         data.DetailDokumenRequestP3sp // <--- kirim detail array
@@ -522,14 +522,14 @@
     @(Html.DevExtreme().Popup()
     .ID("detail-popup")
     .Width(800)
-    .Height(700)
+    .Height(500)
     .Visible(true)
     .DragEnabled(true)
     .Position(PositionAlignment.Center)
     .Container(".dx-viewport")
     .ShowTitle(true)
     .HideOnParentScroll(true)
-    .Title("Detail Permintaan Pembuatan Dan Perubahan Sistem ERP")
+    .Title("Detail Permintaan Pekerjaan Infor")
     .Content(@<text>
         <div style="max-height: 600px; overflow-y: auto;">
             @(Html.DevExtreme().Form()
@@ -565,60 +565,22 @@
                     items.AddSimple().Label(label => label.Text("Tingkat Kepentingan"))
                         .Editor(e => e.TextBox().ID("txtTingkat").ReadOnly(true));
 
-                    items.AddSimple().Label(label => label.Text("Mohon Diadakan"))
-                        .Editor(e => e.TextBox().ID("txtDiadakan").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Menggunakan Superuser"))
+                        .Editor(e => e.TextBox().ID("txtSuperuser").ReadOnly(true));
 
-                    items.AddSimple().Label(label => label.Text("ID Menu"))
-                        .Editor(e => e.TextBox().ID("txtIdMenu").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Jenis Pekerjaan"))
+                        .Editor(e => e.TextBox().ID("txtjenisPekerjaan").ReadOnly(true));
 
-                    items.AddSimple().Label(label => label.Text("Judul Report"))
-                        .Editor(e => e.TextBox().ID("txtJudul").ReadOnly(true));
+                    items.AddSimple().Label(label => label.Text("Jenis Superuser"))
+                        .Editor(e => e.TextBox().ID("txtjenisSuperuser").ReadOnly(true));
 
                     items.AddSimple().Label(label => label.Text("Alasan Permintaan"))
                         .Editor(e => e.TextArea().ID("txtAlasan").ReadOnly(true));
 
                     items.AddSimple().Label(label => label.Text("Spesifikasi User"))
-                        .Editor(e => e.TextArea().ID("txtSpesifikasi").ReadOnly(true));
+                        .Editor(e => e.TextArea().ID("txtSpesifikasi").ReadOnly(true).Height(80));
 
-                    items.AddSimple()
-                        .Label(label => label.Text("ANALISA"))
-                        .ColSpan(2);
-
-                    items.AddSimple().Label(label => label.Text("Dampak Report Terhadap"))
-                        .ColSpan(2);
-
-                    items.AddSimple().Label(label => label.Text("Quality"))
-                        .Editor(e => e.TextBox().ID("txtDokQuality").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Cost"))
-                        .Editor(e => e.TextBox().ID("txtDokCost").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Delivery"))
-                        .Editor(e => e.TextBox().ID("txtDokDelivery").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Safety"))
-                        .Editor(e => e.TextBox().ID("txtDokSafety").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Morale"))
-                        .Editor(e => e.TextBox().ID("txtDokMorale").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Productivity"))
-                        .Editor(e => e.TextBox().ID("txtDokProductivity").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Tingkat Kesulitan"))
-                        .Editor(e => e.TextBox().ID("txtDokKesulitan").ReadOnly(true)).ColSpan(2);
-
-                    items.AddSimple().Label(label => label.Text("Score"))
-                        .Editor(e => e.TextBox().ID("txtDokScore").ReadOnly(true)).ColSpan(2);
-
-                    items.AddSimple().Label(label => label.Text("PIC"))
-                        .Editor(e => e.TextBox().ID("txtDokPIC").ReadOnly(true)).ColSpan(2);
-
-                    items.AddSimple().Label(label => label.Text("Prioritas"))
-                        .Editor(e => e.TextBox().ID("txtDokPrioritas").ReadOnly(true));
-
-                    items.AddSimple().Label(label => label.Text("Due Date"))
-                        .Editor(e => e.DateBox().ID("txtDokDueDate").ReadOnly(true));
+                  
                 })
                 .LabelLocation(FormLabelLocation.Left)
                 .ReadOnly(false)
@@ -2348,9 +2310,9 @@
                 dokReqBy,
                 dokStatus,
                 dokTingkat,
-                dokDiadakan,
-                dokIdMenu,
-                dokJudul,
+                dokSuperuser,
+                dokJenisPekerjaan,
+                dokJenisSuperuser,
                 dokAlasan,
                 dokSpesifikasi,
                 detailData
@@ -2384,9 +2346,9 @@
                     "#txtDokReqBy": usrNama,
                     "#txtStatus": statusMap[dokStatus] || "-",
                     "#txtTingkat": dokTingkat,
-                    "#txtDiadakan": dokDiadakan,
-                    "#txtIdMenu": dokIdMenu,
-                    "#txtJudul": dokJudul,
+                    "#txtSuperuser": dokSuperuser,
+                    "#txtjenisPekerjaan": dokJenisPekerjaan,
+                    "#txtjenisSuperuser": dokJenisSuperuser,
                     "#txtAlasan": dokAlasan,
                     "#txtSpesifikasi": dokSpesifikasi,
                 };
@@ -3210,7 +3172,7 @@
                 console.log("🧪 Data dari grid (Edit):", data);
 
                 isEditMode = true;
-                currentDokId = data.dok_id; // sesuaikan dengan primary key
+                currentDokId = data.dok_id; 
 
                 // Set semua field form sesuai data yang diterima
                 $("#reference_number").dxTextBox("instance").option("value", data.dok_refnum ?? "");
@@ -3218,13 +3180,13 @@
                 $("#section_department").dxTextBox("instance").option("value", data.dok_section ?? "");
                 $("#npk").dxTextBox("instance").option("value", data.usr_npk ?? "");
                 $("#erp_name").dxTextBox("instance").option("value", data.dok_user_erp ?? "");
-                $("#erp_id").dxTextBox("instance").option("value", data.dok_erp ?? "infor");
                 $("#req_tingkat").dxRadioGroup("instance").option("value", data.dok_tingkat ?? "");
-                $("#req_pengadaan").dxRadioGroup("instance").option("value", data.dok_pengadaan ?? "");
-                $("#id_menu").dxTextBox("instance").option("value", data.dok_id_menu ?? "");
-                $("#judul_report").dxTextBox("instance").option("value", data.dok_judul_report ?? "");
-                $("#reason").dxTextBox("instance").option("value", data.dok_reason ?? "");
-                $("#spesifikasi").dxTextBox("instance").option("value", data.dok_spesifikasi ?? "");
+                $("#superuser").dxRadioGroup("instance").option("value", data.dok_superuser ?? "");
+                $("#req_jenis_pekerjaan").dxRadioGroup("instance").option("value", data.dok_jenis_pekerjaan ?? "");
+                $("#req_jenis_superuser").dxRadioGroup("instance").option("value", data.dok_jenis_superuser ?? "");
+                $("#judul_request").dxTextBox("instance").option("value", data.dok_judul_request ?? "");
+                $("#reason").dxTextArea("instance").option("value", data.dok_reason ?? "");
+                $("#spesifikasi").dxTextArea("instance").option("value", data.dok_spesifikasi ?? "");
                 $("#dokumen").dxTextBox("instance").option("value", data.dok_document ?? "");
                 $("#dok_ttd_user").val(data.dok_ttd_user ?? "");
 
@@ -3299,7 +3261,7 @@
 
                 // Tampilkan popup dengan title edit
                 const popup = DevExpress.ui.dxPopup.getInstance(document.getElementById("form-scheduled"));
-                popup.option("title", "Edit Permintaan Pembuatan dan Perubahan Sistem ERP");
+                popup.option("title", "Edit Permintaan Pekerjaan Infor");
                 popup.show();
             }
 

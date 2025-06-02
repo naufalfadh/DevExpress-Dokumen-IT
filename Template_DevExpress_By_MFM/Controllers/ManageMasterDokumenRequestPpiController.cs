@@ -320,6 +320,127 @@ Link sistem: http://localhost:8000/Login
             }
         }
 
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/{dok_id}")]
+        public HttpResponseMessage Update(long dok_id, [FromBody] MasterDokumenRequestPpi requestData)
+        {
+            try
+            {
+                if (sessionLogin == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Message = "Session Expired" });
+                }
+
+                if (requestData == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Data tidak boleh kosong!" });
+                }
+
+                if (requestData.usr_npk == null || requestData.usr_npk == 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "NPK harus berupa angka yang valid!" });
+                }
+
+                // Validasi field penting
+                if (string.IsNullOrEmpty(requestData.dok_refnum) ||
+                    string.IsNullOrEmpty(requestData.usr_nama) ||
+                    string.IsNullOrEmpty(requestData.dok_user_erp) ||
+                    string.IsNullOrEmpty(requestData.dok_plant) ||
+                    string.IsNullOrEmpty(requestData.dok_section) ||
+                    string.IsNullOrEmpty(requestData.dok_tingkat) ||
+                    string.IsNullOrEmpty(requestData.dok_jenis_pekerjaan) ||
+                    string.IsNullOrEmpty(requestData.dok_superuser) ||
+                    string.IsNullOrEmpty(requestData.dok_jenis_superuser) ||
+                    string.IsNullOrEmpty(requestData.dok_judul_request) ||
+                    string.IsNullOrEmpty(requestData.dok_document) ||
+                    string.IsNullOrEmpty(requestData.dok_reason) ||
+                    string.IsNullOrEmpty(requestData.dok_spesifikasi))
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, new { Message = "Beberapa data master tidak valid atau kosong!" });
+                }
+
+                using (var transaction = GSDbContext.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var existingData = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(d => d.dok_id == dok_id);
+                        if (existingData == null)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.NotFound, new { Message = "Data tidak ditemukan!" });
+                        }
+
+                        // Update field
+                        existingData.dok_refnum = requestData.dok_refnum;
+                        existingData.usr_npk = requestData.usr_npk ?? existingData.usr_npk;
+                        existingData.usr_nama = requestData.usr_nama;
+                        existingData.dok_user_erp = requestData.dok_user_erp;
+                        existingData.dok_plant = requestData.dok_plant;
+                        existingData.dok_section = requestData.dok_section;
+                        existingData.dok_tingkat = requestData.dok_tingkat;
+                        existingData.dok_jenis_pekerjaan = requestData.dok_jenis_pekerjaan;
+                        existingData.dok_superuser = requestData.dok_superuser;
+                        existingData.dok_jenis_superuser = requestData.dok_jenis_superuser;
+                        existingData.dok_judul_request = requestData.dok_judul_request;
+                        existingData.dok_document = requestData.dok_document;
+                        existingData.dok_reason = requestData.dok_reason;
+                        existingData.dok_spesifikasi = requestData.dok_spesifikasi;
+
+                        if (!string.IsNullOrEmpty(requestData.dok_lampiran))
+                        {
+                            existingData.dok_lampiran = SaveBase64File(requestData.dok_lampiran, existingData.dok_refnum, $"Lampiran_{existingData.dok_refnum}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+                        }
+
+                        existingData.dok_ttd_user = requestData.dok_ttd_user ?? existingData.dok_ttd_user;
+
+                        existingData.modifDate = DateTime.UtcNow.AddHours(7);
+                        existingData.modifBy = sessionLogin?.fullname ?? "System";
+
+                        GSDbContext.SaveChanges();
+
+                        transaction.Commit();
+
+                        return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Data berhasil diperbarui!" });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return HandleException(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex);
+            }
+        }
+
+
+        [SessionCheck]
+        [HttpDelete]
+        [Route("api/ManageMasterDokumenRequestPpi/{dok_id}")]
+        public HttpResponseMessage Delete(long dok_id)
+        {
+            try
+            {
+                if (sessionLogin == null)
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Message = "Session expired" });
+
+                var entity = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(d => d.dok_id == dok_id);
+                if (entity == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, new { Message = "Data tidak ditemukan" });
+
+                GSDbContext.MasterDokumenRequestPpi.Remove(entity);
+                GSDbContext.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Data berhasil dihapus" });
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex);
+            }
+        }
+
         private static bool SendEmailNotification(string recipientEmail, string message)
         {
             try
