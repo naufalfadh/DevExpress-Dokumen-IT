@@ -14,6 +14,7 @@ namespace Template_DevExpress_By_MFM
         public DbSet<MasterMenu> MasterMenu { get; set; }
         public DbSet<MasterDokumenRequestP3sp> MasterDokumenRequestP3sp { get; set; }
         public DbSet<DetailDokumenRequestP3sp> DetailDokumenRequestP3sp { get; set; }
+        public DbSet<MasterDokumenRequestPpi> MasterDokumenRequestPpi { get; set; }
 
         public GSDbContext() : base("name=GSDbContext") { }
 

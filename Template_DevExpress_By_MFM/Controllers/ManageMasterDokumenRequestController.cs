@@ -65,8 +65,15 @@ namespace Template_DevExpress_By_MFM.Controllers
                     .Select(x => x.dok_refnum)
                     .FirstOrDefault();
 
+                var lastReference3 = GSDbContext.MasterDokumenRequestPpi
+                    .Where(x => x.dok_refnum.StartsWith(prefix))
+                    .OrderByDescending(x => x.dok_refnum)
+                    .Select(x => x.dok_refnum)
+                    .FirstOrDefault();
+
                 int lastRunNumber1 = 0;
                 int lastRunNumber2 = 0;
+                int lastRunNumber3 = 0;
 
                 if (!string.IsNullOrEmpty(lastReference1))
                 {
@@ -86,8 +93,17 @@ namespace Template_DevExpress_By_MFM.Controllers
                     }
                 }
 
+                if (!string.IsNullOrEmpty(lastReference3))
+                {
+                    string[] parts2 = lastReference3.Split('-');
+                    if (parts2.Length == 3 && int.TryParse(parts2[2], out int parsedNumber3))
+                    {
+                        lastRunNumber3 = parsedNumber3;
+                    }
+                }
+
                 // Ambil angka terbesar dari kedua nomor terakhir
-                int lastRunNumber = Math.Max(lastRunNumber1, lastRunNumber2);
+                int lastRunNumber = Math.Max(lastRunNumber1, Math.Max(lastRunNumber2, lastRunNumber3));
 
                 int newRunNumber = lastRunNumber + 1;
                 string newReference = $"{prefix}{newRunNumber.ToString("D3")}"; // Padding 3 digit

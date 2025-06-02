@@ -95,7 +95,7 @@
                     <h4 class="page-title">Dokumen Request</h4>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="javascript:void(0);">Dokumen Request</a></li>
-                        <li class="breadcrumb-item" active><a href="javascript:void(0);">Permintaan Pembuatan dan Perubahan Sistem ERP</a></li>
+                        <li class="breadcrumb-item" active><a href="javascript:void(0);">Permintaan Pekerjaan Infor</a></li>
                     </ol>
 
                 </div>
@@ -106,7 +106,7 @@
     <input type="text" id="temp_id" hidden />
     <div class="row">
         <div class="col-12" id="table-data-alatvm">
-            @(Html.DevExtreme().DataGrid<MasterDokumenRequestP3sp>().ID("gridContainer").ShowBorders(true).OnRowPrepared("onRowPrepared").OnContentReady("onGridContentReady")
+            @(Html.DevExtreme().DataGrid<MasterDokumenRequestPpi>().ID("gridContainer").ShowBorders(true).OnRowPrepared("onRowPrepared").OnContentReady("onGridContentReady")
  .AllowColumnReordering(true)
  .AllowColumnResizing(true)
  .ColumnAutoWidth(true)
@@ -115,7 +115,7 @@
  .ShowColumnLines(true)
  .WordWrapEnabled(true)
  .RowAlternationEnabled(true)
- .DataSource(d => d.WebApi().Controller("ManageMasterDokumenRequestP3sp").InsertAction(false).UpdateAction(false).DeleteAction(false).Key("dok_id"))
+ .DataSource(d => d.WebApi().Controller("ManageMasterDokumenRequestPpi").InsertAction(false).UpdateAction(false).DeleteAction(false).Key("dok_id"))
  .Columns(columns =>
  {
      columns.Add().Caption("No").FormItem(i => i.Visible(false)).AllowEditing(false).CellTemplate(new JS("cell_numbering")).Alignment(HorizontalAlignment.Center);
@@ -922,22 +922,30 @@
     @(Html.DevExtreme().Popup()
     .ID("form-scheduled")
     .Width(1150)
-    .Height(750)
+    .Height(700)
     .Visible(true)
     .DragEnabled(true)
     .Position(PositionAlignment.Center)
     .Container(".dx-viewport")
     .ShowTitle(true)
     .HideOnParentScroll(true)
-    .Title("Add Permintaan Pembuatan dan Perubahan Sistem ERP")
+    .Title("Add Permintaan Pekerjaan Infor")
     .Content(@<text>
 
     @{
         var priorities = new[] { "Tinggi", "Medium", "Rendah" };
     }
-      @{
-      var pengadaan = new[] { "Pengadaan Report Baru", "Pengadaan Session Baru", "Pengadaan Modul Baru", "Perubahan Report Yang Sudah Ada", "Perubahan Session Yang Sudah Ada", "Perubahan Modul Yang Sudah Ada" };
-  }
+
+     @{
+     var superuser = new[] { "Ya", "Tidak" };
+ }
+        @{
+    var jsuperuser = new[] { "Aplikasi", "Database" };
+}
+            @{
+    var jpekerjaan = new[] { "Pembuatan CDF", "Copy Company" };
+}
+
          <input type="hidden" id="dok_ttd_user" name="dok_ttd_user" />
 
 
@@ -963,67 +971,65 @@
              })
             .ColSpan(1);
 
-            items.AddSimple()
-             .Label(label => label.Text("ERP"))
-             .Editor(e => e.TextBox()
-                 .ID("erp_id")
-                 .ReadOnly(true)
-                 .Value("infor"))
-             .ColSpan(1);
+            items.AddSimple().Label(label => label.Text("NPK")).Editor(e => e.TextBox().ID("npk").ReadOnly(true)).ColSpan(1);
 
             items.AddSimple().Label(label => label.Text("Tingkat Kepentingan")).Editor(e => e.RadioGroup().Items(priorities).Value("").Layout(Orientation.Horizontal).ID("req_tingkat"))
             .ValidationRules(rules =>
             {
                 rules.AddRequired().Message("Tingkat Kepentingan wajib dipilih");
             })
-
             .ColSpan(1);
-            items.AddSimple().Label(label => label.Text("NPK")).Editor(e => e.TextBox().ID("npk").ReadOnly(true)).ColSpan(1);
-            items.AddSimple().Label(label => label.Text("Mohon Diadakan")).Editor(e => e.RadioGroup().Items(pengadaan).Value("").Layout(Orientation.Horizontal).ID("req_pengadaan"))
-            .ValidationRules(rules =>
-            {
-                rules.AddRequired().Message("Jenis permintaan wajib dipilih");
-            })
 
+            items.AddSimple().Label(label => label.Text("Menggunakan Superuser"))
+            .Editor(e => e.RadioGroup()
+                .Items(superuser)
+                .Value("")
+                .Layout(Orientation.Horizontal)
+                .ID("superuser")
+                .OnValueChanged("onSuperuserChanged")
+            )
             .ColSpan(1);
+
+            items.AddSimple().Label(label => label.Text("Jenis Pekerjaan"))
+                .Editor(e => e.RadioGroup()
+                    .Items(jpekerjaan)
+                    .Value("")
+                    .Layout(Orientation.Horizontal)
+                    .ID("req_jenis_pekerjaan")
+                )
+                .ColSpan(1);
+
+            items.AddSimple().Label(label => label.Text("Jenis Superuser"))
+                .Editor(e => e.RadioGroup()
+                    .Items(jsuperuser)
+                    .Value("")
+                    .Layout(Orientation.Horizontal)
+                    .ID("req_jenis_superuser")
+                )
+                .ColSpan(1);
+
+            items.AddSimple().Label(label => label.Text("Judul Request")).Editor(e => e.TextBox().ID("judul_request")).ColSpan(1);
 
             items.AddSimple().Label(label => label.Text("Dokumen")).Editor(e => e.TextBox().ID("dokumen")).ColSpan(2);
-            items.AddSimple()
-                .Label(label => label.Text("ID Menu"))
-                .Editor(e => e.TextBox()
-                    .ID("id_menu")
 
-                )
-               .ValidationRules(rules =>
-{
-    rules.AddRequired().Message("ID Menu wajib diisi");
-    rules.AddPattern()
-        .Pattern(@"^.{0,20}$")
-        .Message("Maksimal 20 karakter.");
-})
-
-                .ColSpan(1);
-            items.AddSimple().Label(label => label.Text("Judul Report")).Editor(e => e.TextBox().ID("judul_report"))
+            items.AddSimple().Label(label => label.Text("Alasan Permintaan")).Editor(e => e.TextArea().ID("reason").Width("100%").Height(100))
             .ValidationRules(rules =>
-{
-    rules.AddRequired().Message("Judul Report wajib diisi");
-})
-.ColSpan(1);
-
-            items.AddSimple().Label(label => label.Text("Alasan Permintaan")).Editor(e => e.TextBox().ID("reason").Width("100%").Height(100))
-            .ValidationRules(rules =>
-{
-    rules.AddRequired().Message("Alasan permintaan wajib diisi");
-})
+            {
+                rules.AddRequired().Message("Alasan permintaan wajib diisi");
+            })
 
             .ColSpan(2);
-            items.AddSimple().Label(label => label.Text("Spesifikasi User")).Editor(e => e.TextBox().ID("spesifikasi").Width("100%").Height(100))
+
+            items.AddSimple().Label(label => label.Text("Spesifikasi User")).Editor(e => e.TextArea().ID("spesifikasi").Width("100%").Height(100))
             .ValidationRules(rules =>
-{
-    rules.AddRequired().Message("Spesifikasi user wajib diisi");
-})
+            {
+                rules.AddRequired().Message("Spesifikasi user wajib diisi");
+            })
 
             .ColSpan(2);
+
+
+
             items.AddSimple().Label(label => label.Text("Lampiran")).Template(new TemplateName("fileUploaderTemplate")).ColSpan(1);
             items.AddSimple().Label(label => label.Text("")).Editor(e => e.TextBox().ID("").ReadOnly(true).Visible(true)).ColSpan(1);
 
@@ -1036,70 +1042,6 @@
     )
 
 
-    </text>)
-    .ShowCloseButton(true)
-)
-    @(Html.DevExtreme().Popup()
-    .ID("testing-popup")
-    .Width(800)
-    .Height(250)
-    .Visible(false) // Jangan langsung tampil
-    .DragEnabled(true)
-    .Position(PositionAlignment.Center)
-    .Container(".dx-viewport")
-    .ShowTitle(true)
-    .HideOnParentScroll(true)
-    .Title("Test")
-    .Content(@<text>
-        @(Html.DevExtreme().Form()
-            .ID("testing") // Form ID harus sesuai dengan JS
-            .ColCount(2)
-            .FormData(new { dok_id = "", dok_refnum = "", dok_status = "" }) // Default nilai kosong
-            .Items(items =>
-            {
-
-                items.AddSimple().DataField("dok_refnum")
-                    .Label(label => label.Text("Dokumen Ref"))
-                    .Editor(e => e.TextBox().ReadOnly(true)); // ReadOnly agar tidak bisa diubah
-
-                items.AddSimple().DataField("dok_status")
-                    .Label(label => label.Text("Status"))
-                    .Editor(e => e.TextBox().ReadOnly(true));
-
-                items.AddSimple().DataField("dok_hasil_test")
-                    .Label(label => label.Text("Hasil Test"))
-                    .Editor(e => e.TextArea().ReadOnly(false))
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Hasil Test wajib diisi");
-                    });
-
-                items.AddSimple().DataField("dok_spesifikasi_verifikasi")
-                    .Label(label => label.Text("Spesifikasi & Verifikasi User"))
-                    .Editor(e => e.TextArea().ReadOnly(false))
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Spesifikasi & Verifikasi wajib diisi");
-                    });
-
-
-                items.AddSimple().DataField("dok_id")
-                    .Label(label => label.Text("Dokumen ID").Visible(false))
-                    .Editor(e => e.TextBox().Visible(false).ReadOnly(true));
-
-
-                items.AddButton()
-                    .ColSpan(2)
-                    .ButtonOptions(b => b
-                        .Text("Submit")
-                        .Type(ButtonType.Default)
-                        .OnClick("testingDokumen")
-                    );
-            })
-            .LabelLocation(FormLabelLocation.Left)
-            .ReadOnly(false)
-            .ShowColonAfterLabel(true)
-        )
     </text>)
     .ShowCloseButton(true)
 )
@@ -1161,6 +1103,23 @@
                 });
 
                 observer.observe(document.body, { childList: true, subtree: true });
+            });
+
+            function onSuperuserChanged(e) {
+                const jenisSuperuser = $("#req_jenis_superuser").dxRadioGroup("instance");
+
+                if (e.value === "Ya") {
+                    jenisSuperuser.option("disabled", false);
+                } else {
+                    jenisSuperuser.option("disabled", true);
+                    jenisSuperuser.option("value", ""); // Kosongkan nilai jika dinonaktifkan
+                }
+            }
+
+            $(function () {
+                // Inisialisasi saat form dibuka, default-nya disable
+                const jenisSuperuser = $("#req_jenis_superuser").dxRadioGroup("instance");
+                jenisSuperuser.option("disabled", true);
             });
         </script>
 
@@ -1483,12 +1442,13 @@
                         dok_plant: $("#plant").dxTextBox("option", "value"),
                         dok_section: $("#section_department").dxTextBox("option", "value"),
                         dok_tingkat: $("#req_tingkat").dxRadioGroup("option", "value"),
-                        dok_pengadaan: $("#req_pengadaan").dxRadioGroup("option", "value"),
-                        dok_id_menu: $("#id_menu").dxTextBox("option", "value"),
-                        dok_judul_report: $("#judul_report").dxTextBox("option", "value"),
-                        dok_document: "Permintaan Pembuatan dan Perubahan Sistem ERP",
-                        dok_reason: $("#reason").dxTextBox("option", "value"),
-                        dok_spesifikasi: $("#spesifikasi").dxTextBox("option", "value"),
+                        dok_superuser: $("#superuser").dxRadioGroup("option", "value"),
+                        dok_jenis_superuser: $("#req_jenis_superuser").dxRadioGroup("option", "value"),
+                        dok_jenis_pekerjaan: $("#req_jenis_pekerjaan").dxRadioGroup("option", "value"),
+                        dok_document: "Permintaan Pekerjaan Infor",
+                        dok_judul_request: $("#judul_request").dxTextBox("option", "value"),
+                        dok_reason: $("#reason").dxTextArea("option", "value"),
+                        dok_spesifikasi: $("#spesifikasi").dxTextArea("option", "value"),
                         dok_lampiran: base64File,
                         dok_ttd_user: $("#dok_ttd_user").val(), // ✅ Sekarang pasti terisi
 
@@ -1498,8 +1458,8 @@
 
                     $.ajax({
                         url: isEditMode
-                            ? `/api/ManageMasterDokumenRequestP3sp/${currentDokId}`
-                            : "/api/ManageMasterDokumenRequestP3sp",
+                            ? `/api/ManageMasterDokumenRequestPpi/${currentDokId}`
+                            : "/api/ManageMasterDokumenRequestPpi",
                         type: isEditMode ? "PUT" : "POST",
                         contentType: "application/json",
                         data: JSON.stringify(formData),
@@ -2627,92 +2587,6 @@
                     }, 300); // Tunggu 300ms agar form terinisialisasi
                 }
 
-            function showAdminTestPopup(dok_refnum, dok_status, dok_id) {
-                let dataPopUp = document.getElementById("testing-popup");
-
-                if (!dataPopUp) {
-                    console.error("Element dengan ID '' tidak ditemukan.");
-                    return;
-                }
-
-                let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
-
-                if (!popup) {
-                    console.error("dxPopup belum diinisialisasi atau tidak ditemukan.");
-                    return;
-                }
-
-                popup.show();
-
-                setTimeout(() => {
-                    let form = $("#testing").dxForm("instance"); // Ambil instance Form
-
-                    if (!form) {
-                        console.error("Form 'testing' tidak ditemukan.");
-                        return;
-                    }
-
-                    // Mapping dok_status ke teks yang sesuai
-                    const statusMapping = {
-                        10: "Waiting Testing",
-                        9: "Waiting Approval Business Analyst",
-                        8: "Waiting Analisis",
-                        7: "Done",
-                        6: "Waiting BAST Kadept IT",
-                        5: "Waiting BAST User",
-                        4: "Waiting BAST",
-                        3: "On Progress",
-                        2: "Reject",
-                        1: "Waiting Approval Kadept IT",
-                        0: "Waiting Approval Kadept"
-                    };
-
-                    let statusText = statusMapping[dok_status] || "Status Tidak Diketahui";
-
-                    // Set nilai inputan di dalam Form
-                    form.option("formData", {
-                        dok_id: dok_id,
-                        dok_refnum: dok_refnum,
-                        dok_status: statusText // Menampilkan teks status
-                    });
-
-                    console.log("Popup dibuka dengan data:", dok_refnum, statusText, dok_id);
-                }, 300); // Tunggu 300ms agar form terinisialisasi
-            }
-
-            function testingDokumen(e) {
-                let form = $("#testing").dxForm("instance");
-
-                if (!form) {
-                    console.error("Form 'testing' tidak ditemukan.");
-                    return;
-                }
-
-                let isValid = form.validate().isValid;
-
-                if (!isValid) {
-                    DevExpress.ui.notify("Harap lengkapi semua isian yang wajib!", "warning", 3000);
-                    return;
-                }
-
-                let formData = form.option("formData");
-
-                $.ajax({
-                    url: "/api/ManageMasterDokumenRequestP3sp/TestingDokumen",
-                    type: "PUT",
-                    data: formData,
-                    success: function (response) {
-                        DevExpress.ui.notify(response.Message, "success", 3000);
-                        $("#testing-popup").dxPopup("instance").hide();
-                        $("#gridContainer").dxDataGrid("instance").refresh();
-                    },
-                    error: function (xhr) {
-                        let errorMessage = xhr.responseJSON ? xhr.responseJSON.Message : "Terjadi kesalahan";
-                        DevExpress.ui.notify(errorMessage, "error", 3000);
-                    }
-                });
-            }
-
 
             function updateDokumen() {
                 const form = $("#addAdmin").dxForm("instance");
@@ -2817,7 +2691,7 @@
                 let formData = form.option("formData");
 
                 $.ajax({
-                    url: "/api/ManageMasterDokumenRequestP3sp/UpdateBast",
+                    url: "/api/ManageMasterDokumenRequestPpi/UpdateBast",
                     type: "PUT",
                     data: formData,
                     success: function (response) {
@@ -2895,7 +2769,7 @@
 
 
                  $.ajax({
-                     url: "/api/ManageMasterDokumenRequestP3sp/ApproveBastUser",
+                     url: "/api/ManageMasterDokumenRequestPpi/ApproveBastUser",
                      type: "PUT",
                      data: { key: dok_id, dok_status: dok_status },
                      success: function (response) {
@@ -2973,7 +2847,7 @@
                 }
 
                 $.ajax({
-                    url: "/api/ManageMasterDokumenRequestP3sp/UpdateStatus",
+                    url: "/api/ManageMasterDokumenRequestPpi/UpdateStatus",
                     type: "PUT",
                     data: { key: dok_id, dok_status: dok_status },
                     success: function (response) {
@@ -3036,7 +2910,7 @@
 
 
                      $.ajax({
-                         url: "/api/ManageMasterDokumenRequestP3sp/ApproveBastBa",
+                         url: "/api/ManageMasterDokumenRequestPpi/ApproveBastBa",
                          type: "PUT",
                          data: { key: dok_id, dok_status: dok_status },
                          success: function (response) {
@@ -3096,7 +2970,7 @@
 
 
              $.ajax({
-                 url: "/api/ManageMasterDokumenRequestP3sp/ApproveBastKadeptIT",
+                 url: "/api/ManageMasterDokumenRequestPpi/ApproveBastKadeptIT",
                  type: "PUT",
                  data: { key: dok_id, dok_status: dok_status },
                  success: function (response) {
@@ -3187,7 +3061,7 @@
                 }
 
                 $.ajax({
-                    url: "/api/ManageMasterDokumenRequestP3sp/ApproveTestUser",
+                    url: "/api/ManageMasterDokumenRequestPpi/ApproveTestUser",
                     type: "PUT",
                     data: { key: dok_id, dok_status: dok_status },
                     success: function (response) {
@@ -3269,7 +3143,7 @@
                 }
 
                 $.ajax({
-                    url: "/api/ManageMasterDokumenRequestP3sp/ApproveIt",
+                    url: "/api/ManageMasterDokumenRequestPpi/ApproveIt",
                     type: "PUT",
                     data: { key: dok_id, dok_status: dok_status },
                     success: function (response) {
@@ -3306,14 +3180,8 @@
                 $("#section_department").dxTextBox("instance").option("value", "");
                 $("#npk").dxTextBox("instance").option("value", "");
                 $("#erp_name").dxTextBox("instance").option("value", "");
-                $("#erp_id").dxTextBox("instance").option("value", "infor"); // default value
                 $("#req_tingkat").dxRadioGroup("instance").option("value", null);
-                $("#req_pengadaan").dxRadioGroup("instance").option("value", null);
-                $("#id_menu").dxTextBox("instance").option("value", "");
-                $("#judul_report").dxTextBox("instance").option("value", "");
-                $("#reason").dxTextBox("instance").option("value", "");
-                $("#spesifikasi").dxTextBox("instance").option("value", "");
-                $("#dokumen").dxTextBox("instance").option("value", "Permintaan Pembuatan dan Perubahan Sistem ERP"); // default tetap ada
+                $("#dokumen").dxTextBox("instance").option("value", "Permintaan Pekerjaan infor"); // default tetap ada
 
                 $("#dok_ttd_user").val("");
 
@@ -3332,7 +3200,7 @@
 
                 // Tampilkan popup dengan title Add
                 const popup = DevExpress.ui.dxPopup.getInstance(document.getElementById("form-scheduled"));
-                popup.option("title", "Add Permintaan Pembuatan dan Perubahan Sistem ERP");
+                popup.option("title", "Add Permintaan Pekerjaan Infor");
                 popup.show();
             }
 
@@ -3446,7 +3314,7 @@
                     .done(function (confirmed) {
                         if (confirmed) {
                             $.ajax({
-                                url: `/api/ManageMasterDokumenRequestP3sp/${data.dok_id}`,
+                                url: `/api/ManageMasterDokumenRequestPpi/${data.dok_id}`,
                                 type: "DELETE",
                                 success: function (response) {
                                     DevExpress.ui.notify("Data berhasil dihapus.", "success", 1500);
@@ -3526,7 +3394,7 @@
                                         store: new DevExpress.data.CustomStore({
                                             load: function (loadOptions) {
                                                 let d = $.Deferred();
-                                                $.getJSON("/api/ManageMasterDokumenRequestP3sp", {
+                                                $.getJSON("/api/ManageMasterDokumenRequestPpi", {
                                                     departmentFilter: selectedDepartment
                                                 })
                                                     .done(function (result) {
@@ -3587,7 +3455,7 @@
         function refreshTableDevExpress() {
             let dataGrid = document.getElementById("gridContainer");
             let instanceDataGrid = DevExpress.ui.dxDataGrid.getInstance(dataGrid);
-            var $link = '@Html.Raw(Url.Action("ManageMasterDokumenRequestP3sp", "api"))';
+            var $link = '@Html.Raw(Url.Action("ManageMasterDokumenRequestPpi", "api"))';
 
              instanceDataGrid.option('dataSource', DevExpress.data.AspNet.createStore({
                  key: "dok_id",

@@ -1286,6 +1286,7 @@
     <Content Include="Views\Manage\ManageMasterUserForm.cshtml" />
     <Content Include="Views\Manage\ManageMasterDokumenRequest.cshtml" />
     <Content Include="Views\Manage\ManageMasterDokumenRequestP3sp.cshtml" />
+    <Content Include="Views\Manage\ManageMasterDokumenRequestPpi.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1304,6 +1305,7 @@
     <Compile Include="Controllers\ManageMasterDokumenRequestController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ChangePasswordController.cs" />
+    <Compile Include="Controllers\ManageMasterDokumenRequestPpiController.cs" />
     <Compile Include="Controllers\ManageMasterUserFormController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -1314,6 +1316,7 @@
     <Compile Include="Models\APIModel.cs" />
     <Compile Include="Models\ManageDetailDokumenRequestP3spModel.cs" />
     <Compile Include="Models\ManageDetailDokumenRequestModel.cs" />
+    <Compile Include="Models\ManageMasterDokumenRequestPpiModel.cs" />
     <Compile Include="Models\ManageMasterMenusModel.cs" />
     <Compile Include="Models\ManageMasterDokumenRequestP3spModel.cs" />
     <Compile Include="Models\ManageMasterDokumenRequestModel.cs" />
@@ -1354,7 +1357,7 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <UserProperties content_4json_3data_4userstatusactive_1json__JsonSchema="https://cdn.jsdelivr.net/gh/roadrunner-server/roadrunner@latest/schemas/config/3.0.schema.json" TemplateFeatures="NET CS" />
+      <UserProperties TemplateFeatures="NET CS" content_4json_3data_4userstatusactive_1json__JsonSchema="https://cdn.jsdelivr.net/gh/roadrunner-server/roadrunner@latest/schemas/config/3.0.schema.json" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

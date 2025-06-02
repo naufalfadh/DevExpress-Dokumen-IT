@@ -103,6 +103,11 @@ namespace Template_DevExpress_By_MFM.Controllers
             return View();
         }
 
+        public ActionResult ManageMasterDokumenRequestPpi()
+        {
+            return View();
+        }
+
         // AREA MANAGE CUSTOMER
         public ActionResult AddDokumenRequest()
         {
