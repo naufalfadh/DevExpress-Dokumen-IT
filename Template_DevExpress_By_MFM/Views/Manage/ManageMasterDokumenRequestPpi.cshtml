@@ -143,7 +143,8 @@
                 5: '#8A2BE2',   //  Waiting BAST User
                 6: '#D3D3D3', //  Waiting BAST Kadept IT
                 7: '#87CEEB', // Done
-                8: '#F0FFFF'
+                8: '#F0FFFF',
+                12: '#FFE4C4'
             };
             var color = colorMap[options.value] || 'transparent';
             $('<div>')
@@ -2332,7 +2333,8 @@
                     8: "Waiting Analisis",
                     9: "Waiting Approval Business Analyst",
                     10: "Waiting Testing",
-                    11: "Waiting Approve Testing User"
+                    11: "Waiting Approve Testing User",
+                    12: "Waiting Approve Kadiv IT"
                 };
 
                 // === MASTER FIELD SET ===
@@ -2440,6 +2442,7 @@
 
                     // Mapping dok_status ke teks yang sesuai
                     const statusMapping = {
+                        12: "Waiting Approve Kadiv IT",
                         8: "Waiting Analisis",
                         7: "Done",
                         6: "Waiting BAST Kadept IT",
@@ -2525,6 +2528,7 @@
 
                         // Mapping dok_status ke teks yang sesuai
                         const statusMapping = {
+                            12: "Waiting Approve Kadiv IT",
                             8: "Waiting Analisis",
                             7: "Done",
                             6: "Waiting BAST Kadept IT",
@@ -2610,6 +2614,7 @@
 
                     // Mapping dok_status ke teks yang sesuai
                     const statusMapping = {
+                        12: "Waiting Approve Kadiv IT",
                         8: "Waiting Analisis",
                         7: "Done",
                         6: "Waiting BAST Kadept IT",

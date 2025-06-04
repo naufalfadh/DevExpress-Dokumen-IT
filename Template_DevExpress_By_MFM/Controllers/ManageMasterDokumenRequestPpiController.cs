@@ -610,6 +610,59 @@ Link sistem: http://localhost:8000/Login
             }
         }
 
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/ApproveIt")]
+        public HttpResponseMessage ApproveIt(FormDataCollection form)
+        {
+            try
+            {
+                if (form == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+
+                var keyValue = form.Get("key");
+
+                if (string.IsNullOrEmpty(keyValue))
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Key tidak boleh kosong");
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+
+                // ✅ Convert NPK dari session ke long?
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+
+                // ✅ Cari user dari tabel user
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+
+                // ✅ Update status dan tanda tangan IT
+                master.dok_status = 12;
+                master.dok_approve_k = sessionLogin.fullname;
+                master.modifDate_k = DateTime.UtcNow.AddHours(7);
+                master.dok_ttd_kadeptit = currentUser.usr_img_ttd ?? "";
+
+                GSDbContext.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD IT disimpan" });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
         private static bool SendEmailNotification(string recipientEmail, string message)
         {
             try
