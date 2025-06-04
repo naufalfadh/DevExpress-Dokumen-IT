@@ -562,7 +562,7 @@ Link sistem: http://localhost:8000/Login
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
                 }
 
-                var keyValue = form.Get("dokId");
+                var keyValue = form.Get("dok_id");
                 if (string.IsNullOrEmpty(keyValue))
                 {
                     Console.WriteLine("⚠️ dokId tidak boleh kosong");
