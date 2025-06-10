@@ -225,14 +225,12 @@
          b.Add().CssClass("btn-accadmin").Icon("add").Hint("Acc Admin")
 .OnClick("function(e) { showAccadminPopup(e.row.data.dok_refnum, e.row.data.dok_status, e.row.data.dok_id); }");
 
-         b.Add().CssClass("btn-approveba").Icon("check").Hint("Acc Business Analyst")
-    .OnClick("function(e) { showApproveBaPopup(e.row.data.dok_id, e.row.data.dok_status); }");
-
          b.Add().CssClass("btn-admintest").Icon("add").Hint("Testing")
 .OnClick("function(e) { showAdminTestPopup(e.row.data.dok_refnum, e.row.data.dok_status, e.row.data.dok_id); }");
 
-         b.Add().CssClass("btn-approveusertester").Icon("check").Hint("Approval Test")
-.OnClick("function(e) { showApproveTestUserPopup(e.row.data.dok_id, e.row.data.dok_status); }");
+         b.Add().CssClass("btn-approvekadivit").Icon("check").Hint("Approve Kadiv")
+.OnClick("function(e) { showApproveKadivPopup(e.row.data.dok_id, e.row.data.dok_status); }");
+
 
          b.Add().CssClass("btn-accadminbast").Icon("chevronright").Hint("Create BAST")
 .OnClick("function(e) { showAccbastPopup(e.row.data.dok_refnum, e.row.data.dok_status, e.row.data.dok_id); }");
@@ -243,6 +241,8 @@
          b.Add().CssClass("btn-approvekadeptit").Icon("check").Hint("Acc Kadept IT SM BAST")
 .OnClick("function(e) { showApproveKadeptITPopup(e.row.data.dok_id, e.row.data.dok_status); }");
 
+         b.Add().CssClass("btn-approvekadept").Icon("check").Hint("Acc Kadept BAST")
+.OnClick("function(e) { showApproveKadeptPopup(e.row.data.dok_id, e.row.data.dok_status); }");
 
 
      });
@@ -301,6 +301,37 @@
     })
     .Content(@<text>
         <div id="approveit-popup-content"></div>
+    </text>)
+)
+    @(Html.DevExtreme().Popup()
+    .ID("approvekadiv-popup")
+    .Visible(false)
+    .Width(350)
+    .Height(200)
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .Title("Confirmation Approve")
+    .ShowCloseButton(false)
+    .ToolbarItems(items =>
+    {
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.Before)
+            .Widget(widget => widget.Button()
+                .Text("Yes")
+                .OnClick("functionBtnApproveKadiv"));
+
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.After)
+            .Widget(widget => widget.Button()
+                .Text("No")
+                .OnClick("function() { $('#approvekadiv-popup').dxPopup('instance').hide(); }"));
+    })
+    .Content(@<text>
+        <div id="approvekadiv-popup-content"></div>
     </text>)
 )
     @(Html.DevExtreme().Popup()
@@ -521,6 +552,38 @@
     })
 )
     @(Html.DevExtreme().Popup()
+    .ID("approvekadept-popup")
+    .Visible(false)
+    .Width(350)
+    .Height(200)
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .Title("Confirmation Approve BAST Kadept")
+    .Content(@<text>
+        <div id="approvekadept-popup-content"></div>
+    </text>)
+    .ShowCloseButton(false)
+    .ToolbarItems(items =>
+    {
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.Before)
+            .Widget(widget => widget.Button()
+                .Text("Yes")
+                .OnClick("functionBtnApproveKadept"));
+
+        items.Add()
+            .Toolbar(Toolbar.Bottom)
+            .Location(ToolbarItemLocation.After)
+            .Widget(widget => widget.Button()
+                .Text("No")
+                .OnClick("function() { $('#approvekadept-popup').dxPopup('instance').hide(); }"));
+    })
+)
+
+    @(Html.DevExtreme().Popup()
     .ID("detail-popup")
     .Width(800)
     .Height(500)
@@ -581,7 +644,7 @@
                     items.AddSimple().Label(label => label.Text("Spesifikasi User"))
                         .Editor(e => e.TextArea().ID("txtSpesifikasi").ReadOnly(true).Height(80));
 
-                  
+
                 })
                 .LabelLocation(FormLabelLocation.Left)
                 .ReadOnly(false)
@@ -589,191 +652,6 @@
             )
         </div>
     </text>)
-    .ShowCloseButton(true)
-)
-    @(Html.DevExtreme().Popup()
-    .ID("accadmin-popup")
-    .Width(800)
-    .Height(580)
-    .Visible(false)
-    .DragEnabled(true)
-    .Position(PositionAlignment.Center)
-    .Container(".dx-viewport")
-    .ShowTitle(true)
-    .HideOnParentScroll(true)
-    .Title("Analisa (Diisi Oleh IT)")
-    .Content(@<text>
-        @(Html.DevExtreme().Form()
-            .ID("addAdmin")
-            .ColCount(3) // Form tetap menggunakan 3 kolom
-            .FormData(new
-            {
-                dok_id = "",
-                dok_refnum = "",
-                dok_status = "",
-                dok_quality = "",
-                dok_cost = "",
-                dok_delivery = "",
-                dok_safety = "",
-                dok_morale = "",
-                dok_productivity = "",
-                dok_tingkat_kesulitan = "",
-                dok_score = "",
-                dok_pic = "",
-                dok_prioritas = "",
-                dok_due_date = "",
-                dok_hasil_analisa = "",
-                dok_tingkat_kesulitan_value = ""
-            })
-
-            .Items(items =>
-            {
-                // Label Dampak Report Terhadap
-                items.AddSimple().DataField("impactLabel")
-                    .Label(label => label.Text("Dampak Report Terhadap**"))
-                    .Editor(e => e.TextBox().Visible(false)); // Menggunakan TextBox tersembunyi agar hanya muncul label
-
-                // Dokumen ID (Hidden)
-                items.AddSimple().DataField("dok_id")
-                    .Label(label => label.Text("Dokumen ID").Visible(false))
-                    .Editor(e => e.TextBox().Visible(false).ReadOnly(true));
-
-                // Tombol Informasi dengan Icon
-                items.AddButton()
-                    .ColSpan(3)
-                    .ButtonOptions(b => b
-                        .Icon("info")
-                        .Type(ButtonType.Normal)
-                        .Text("")
-                        .StylingMode(ButtonStylingMode.Text)
-                        .OnClick("showInfoPopup")
-                    );
-
-                // Skor untuk kategori - Quality
-                items.AddSimple().DataField("dok_quality")
-                    .Label(label => label.Text("Quality"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Skor untuk kategori - Cost
-                items.AddSimple().DataField("dok_cost")
-                    .Label(label => label.Text("Cost"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Skor untuk kategori - Delivery
-                items.AddSimple().DataField("dok_delivery")
-                    .Label(label => label.Text("Delivery"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Skor untuk kategori - Safety
-                items.AddSimple().DataField("dok_safety")
-                    .Label(label => label.Text("Safety"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Skor untuk kategori - Morale
-                items.AddSimple().DataField("dok_morale")
-                    .Label(label => label.Text("Morale"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Skor untuk kategori - Productivity
-                items.AddSimple().DataField("dok_productivity")
-                    .Label(label => label.Text("Productivity"))
-                    .Editor(e => e.NumberBox().OnValueChanged("calculateTotalScore"));
-
-                // Radio button untuk Tingkat Kesulitan
-                items.AddSimple().DataField("dok_tingkat_kesulitan")
-                    .Label(label => label.Text("Tingkat Kesulitan"))
-                    .Editor(e => e.RadioGroup()
-                        .Items(new[] { "Tinggi", "Medium", "Rendah" })
-                        .Value("")
-                        .OnValueChanged("calculateTotalScore")
-                    )
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired()
-                            .Message("Tingkat Kesulitan harus dipilih");
-                    });
-
-
-                // Field Nilai Tingkat Kesulitan (Hidden)
-                items.AddSimple().DataField("dok_tingkat_kesulitan_value")
-                    .Label(label => label.Text("Nilai Tingkat Kesulitan").Visible(false))
-                    .Editor(e => e.TextBox()
-                        .ReadOnly(true)
-                        .Value("")
-                        .Visible(false)
-                    );
-
-                // Tombol Informasi dengan Icon
-                items.AddButton()
-                    .ColSpan(3)
-                    .ButtonOptions(b => b
-                        .Icon("info")
-                        .Type(ButtonType.Normal)
-                        .Text("")
-                        .StylingMode(ButtonStylingMode.Text)
-                        .OnClick("showInfoPopupp")
-                    );
-
-                items.AddSimple().DataField("dok_score")
-                    .Label(label => label.Text("Score"))
-                    .Editor(e => e.TextBox()
-                    .ReadOnly(true))
-                    .ColSpan(2);
-
-                items.AddSimple().DataField("dok_pic")
-                    .Label(label => label.Text("PIC"))
-                    .Editor(e => e.TextBox())
-                    .ColSpan(2)
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("PIC harus diisi");
-                    });
-
-                items.AddSimple().DataField("dok_prioritas")
-                    .Label(label => label.Text("Prioritas"))
-                    .Editor(e => e.TextBox())
-                    .ColSpan(2)
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Prioritas harus diisi");
-                    });
-
-                items.AddSimple().DataField("dok_due_date")
-                    .Label(label => label.Text("Due Date"))
-                    .Editor(e => e.DateBox())
-                    .ColSpan(2)
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Due Date harus diisi");
-                    });
-
-                items.AddSimple().DataField("dok_hasil_analisa")
-                    .Label(label => label.Text("Hasil Analisa"))
-                    .Editor(e => e.TextArea()
-                        .Height(100)
-                    )
-                    .ColSpan(3)
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Hasil Analisa harus diisi");
-                    });
-
-
-                // Tombol Submit
-                items.AddButton()
-                    .ColSpan(3)
-                    .ButtonOptions(b => b
-                        .Text("Submit")
-                        .Type(ButtonType.Default)
-                        .OnClick("updateDokumen")
-                    );
-            })
-            .LabelLocation(FormLabelLocation.Left)
-            .ReadOnly(false)
-            .ShowColonAfterLabel(true)
-        )
-    </text>)
-
     .ShowCloseButton(true)
 )
     <!-- Popup Informasi Skor Dampak -->
@@ -1008,6 +886,92 @@
     </text>)
     .ShowCloseButton(true)
 )
+    @(Html.DevExtreme().Popup()
+    .ID("accadmin-popup")
+    .Width(800)
+    .Height(300)
+    .Visible(false) // Jangan langsung tampil
+    .DragEnabled(true)
+    .Position(PositionAlignment.Center)
+    .Container(".dx-viewport")
+    .ShowTitle(true)
+    .HideOnParentScroll(true)
+    .Title("Diisi Oleh IT")
+    .Content(@<text>
+        @(Html.DevExtreme().Form()
+            .ID("accAdmin") // Form ID harus sesuai dengan JS
+            .ColCount(2)
+            .FormData(new { dok_id = "", dok_refnum = "", dok_status = "" }) // Default nilai kosong
+            .Items(items =>
+            {
+
+                items.AddSimple().DataField("dok_refnum")
+                    .Label(label => label.Text("Dokumen Ref"))
+                    .Editor(e => e.TextBox().ReadOnly(true)); // ReadOnly agar tidak bisa diubah
+
+                items.AddSimple().DataField("dok_status")
+                    .Label(label => label.Text("Status"))
+                    .Editor(e => e.TextBox().ReadOnly(true));
+
+                items.AddSimple()
+          .DataField("dok_tgl_penerimaan")
+          .Label(l => l.Text("Tanggal Penerimaan"))
+          .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+          .ValidationRules(rules =>
+          {
+              rules.AddRequired().Message("Tanggal Pembuatan wajib diisi");
+          });
+
+                items.AddSimple()
+                    .DataField("dok_tgl_dibutuhkan")
+                    .Label(l => l.Text("Tanggal Dibuthkan"))
+                    .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+                    .ValidationRules(rules =>
+                    {
+                        rules.AddRequired().Message("Tanggal Efektif wajib diisi");
+                    });
+
+                items.AddSimple()
+                    .Label(label => label.Text("Status Permintaan"));
+
+                items.AddSimple().DataField("dok_id")
+                    .Label(label => label.Text("Dokumen ID").Visible(false))
+                    .Editor(e => e.TextBox().Visible(false).ReadOnly(true));
+
+
+                items.AddSimple()
+.DataField("dok_tgl_pekerjaan")
+.Label(l => l.Text("Tanggal Pekerjaan"))
+.Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+.ValidationRules(rules =>
+{
+    rules.AddRequired().Message("Tanggal Pekerjaan wajib diisi");
+});
+
+                items.AddSimple()
+                    .DataField("dok_tgl_Efektif")
+                    .Label(l => l.Text("Tanggal Efektif"))
+                    .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+                    .ValidationRules(rules =>
+                    {
+                        rules.AddRequired().Message("Tanggal Efektif wajib diisi");
+                    });
+
+                items.AddButton()
+                    .ColSpan(2)
+                    .ButtonOptions(b => b
+                        .Text("Submit")
+                        .Type(ButtonType.Default)
+                        .OnClick("updateDokumen")
+                    );
+            })
+            .LabelLocation(FormLabelLocation.Left)
+            .ReadOnly(false)
+            .ShowColonAfterLabel(true)
+        )
+    </text>)
+    .ShowCloseButton(true)
+)
 
     <div id="pdf-preview-modal" style="
     display:none;
@@ -1043,15 +1007,15 @@
 
             function hideButtons() {
                 if (userRole === "user") {
-                    document.querySelectorAll(".btn-approve,.btn-accadminbast, .btn-reject, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit, .btn-admintest").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-approve,.btn-accadminbast, .btn-reject, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit  , .btn-approvekadept, .btn-approvekadivit, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadept") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit,.btn-approve, .btn-reject,  .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit   , .btn-approvekadivit, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadeptit") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept, .btn-accadmin, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept, .btn-approveit, .btn-rejectit, .btn-accadmin, .btn-approveusertester  , .btn-approvekadept, .btn-approvekadivit,.btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "admin") {
-                    document.querySelectorAll(".btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit, .btn-approveusertester").forEach(el => el.style.display = "none");
-                } else if (userRole === "businessanalyst") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit, .btn-admintest, .btn-approveusertester, .btn-accadmin").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit, .btn-approvekadivit  , .btn-approvekadept, .btn-approveusertester").forEach(el => el.style.display = "none");
+                } else if (userRole === "kadiv") {
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-approveuser, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit  , .btn-approvekadept, .btn-admintest, .btn-approveusertester, .btn-accadmin").forEach(el => el.style.display = "none");
                 }
                 }
 
@@ -1181,13 +1145,13 @@
 
 
            function calculateTotalScore() {
-                var quality = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_quality").option("value")) || 0;
-                var cost = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_cost").option("value")) || 0;
-                var delivery = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_delivery").option("value")) || 0;
-                var safety = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_safety").option("value")) || 0;
-                var morale = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_morale").option("value")) || 0;
-                var productivity = parseFloat($("#addAdmin").dxForm("instance").getEditor("dok_productivity").option("value")) || 0;
-                var difficulty = $("#addAdmin").dxForm("instance").getEditor("dok_tingkat_kesulitan").option("value");
+                var quality = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_quality").option("value")) || 0;
+                var cost = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_cost").option("value")) || 0;
+                var delivery = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_delivery").option("value")) || 0;
+                var safety = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_safety").option("value")) || 0;
+                var morale = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_morale").option("value")) || 0;
+                var productivity = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_productivity").option("value")) || 0;
+                var difficulty = $("#accAdmin").dxForm("instance").getEditor("dok_tingkat_kesulitan").option("value");
 
                 // Menghitung total skor
                 var totalScore = quality + cost + delivery + safety + morale + productivity;
@@ -1206,11 +1170,11 @@
                 totalScore = totalScore + difficultyValue;
 
                 // Menyimpan hasil ke dalam field 'dokScore'
-                var scoreField = $("#addAdmin").dxForm("instance").getEditor("dok_score");
+                var scoreField = $("#accAdmin").dxForm("instance").getEditor("dok_score");
                 scoreField.option("value", totalScore);
 
                 // Menyimpan nilai tingkat kesulitan di field tersembunyi
-               var difficultyField = $("#addAdmin").dxForm("instance").getEditor("dok_tingkat_kesulitan_value");
+               var difficultyField = $("#accAdmin").dxForm("instance").getEditor("dok_tingkat_kesulitan_value");
                 difficultyField.option("value", difficultyValue);
             }
 
@@ -1274,19 +1238,20 @@
                     const status = e.data.dok_status;
                     const row = $(e.rowElement);
 
-                    const hideRejectForStatuses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-                    const hideApproveForStatuses = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11];
-                    const hideRejectItForStatuses = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-                    const hideApproveItForStatuses = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-                    const hideAccAdminForStatuses = [0,1,2, 4, 5, 6, 7, 9, 10, 11];
-                    const hideBtnUserForStatuses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-                    const hideBtnAdmintesForStatuses = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11];
+                    const hideRejectForStatuses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                    const hideApproveForStatuses = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                    const hideRejectItForStatuses = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                    const hideApproveItForStatuses = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+                    const hideAccAdminForStatuses = [0,1,2, 4, 5, 6, 7,8, 9, 10, 11, 12];
+                    const hideBtnUserForStatuses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12];
+                    const hideBtnAdmintesForStatuses = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12];
                     const hideBtnAdminUsertesForStatuses = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-                    const hideAdminBastForStatuses = [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11];
-                    const hideKadeptItBastForStatuses = [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11];
+                    const hideAdminBastForStatuses = [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12];
+                    const hideKadeptItBastForStatuses = [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11,12];
+                    const hideBtnApprovekadivForStatuses = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
                     setTimeout(() => {
-                        if (["kadept", "kadeptit", "admin", "user", "businessanalyst"].includes(userRole)) {
+                        if (["kadept", "kadeptit", "admin", "user", "kadiv"].includes(userRole)) {
                             // 🔒 Hide tombol Reject
                             if (hideRejectForStatuses.includes(status)) {
                                 row.find("a.btn-reject.dx-icon-close").hide();
@@ -1311,6 +1276,10 @@
 
                             if (hideBtnAdmintesForStatuses.includes(status)) {
                                 row.find("a.btn-admintest.dx-icon-add").hide();
+                            }
+
+                            if (hideBtnApprovekadivForStatuses.includes(status)) {
+                                row.find("a.btn-approvekadivit.dx-icon-check").hide();
                             }
 
                             if (hideBtnAdminUsertesForStatuses.includes(status)) {
@@ -1343,12 +1312,21 @@
                                 row.find("a.btn-approveit.dx-icon-check").hide();
                             }
 
+                            let btnKadept = row.find("a.btn-approvekadept.dx-icon-check");
+                            if (userRole === "kadept" && status === 13) {
+                                btnKadept.show();
+                            } else {
+                                btnKadept.hide();
+                                btnKadept
+                            }
+
                             let btnKadeptIt = row.find("a.btn-approvekadeptit.dx-icon-check");
                             if (userRole === "kadeptit" && status === 6) {
                                 btnKadeptIt.show();
                             } else {
                                 btnKadeptIt.hide();
                             }
+
                         }
                     }, 50); // Delay to ensure button rendered
                 }
@@ -1594,694 +1572,500 @@
 
             }
 
-                function functionPrintDocument(e) {
-                    const doc = new jsPDF('p', 'mm', 'a4');
-
-                    doc.setFontSize(8);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text('Form I1-KM.024', 5, 4);
-                    const logoURL = '/Content/images-new/logo_gs_battery_dark.jpg';
-                    doc.addImage(logoURL, 'PNG', 10, 10, 54, 15);
-
-                    doc.setDrawColor(150);
-                    doc.setLineWidth(0.5);
-                    doc.rect(9, 9, 56, 20);
-
-                    doc.setFontSize(15);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text('FORM PENGAJUAN AKSES', 95, 16);
-                    doc.setLineWidth(0.5);
-                    doc.rect(65, 9, 136, 10);
-                    doc.text('MODUL / SESSION ERP', 100, 26);
-                    doc.rect(65, 19, 136, 10);
-
-                    doc.rect(9, 30, 192, 264);
-
-                    doc.setDrawColor(200, 200, 200);
-                    doc.setFillColor(200, 200, 200);
-                    doc.rect(11, 32, 188, 5, 'FD');
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text("I. PERMINTAAN USER", 15, 36);
-
-                    const grid = e.component;
-                    const selectedRow = e.row.data;
-
-                    if (!selectedRow) {
-                        DevExpress.ui.notify("Pilih satu baris untuk dicetak.", "error", 2000);
-                        return;
-                    }
-
-                    const dokRefNum = selectedRow.dok_refnum || "-";
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`NO. REFERENSI                    :`, 15, 42);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${dokRefNum}`, 62, 42);
-
-                    const dokPlant = selectedRow.dok_plant || "-";
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`PLANT                                    :`, 130, 42);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${dokPlant}`, 175, 42);
-
-                    const usrNama = selectedRow.usr_nama || "-";
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`NAMA LENGKAP / NPK      :`, 15, 47);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${usrNama}`, 62, 47);
-
-                    const dokSection = selectedRow.dok_section || "-";
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`SEKSI / DEPARTEMEN      :`, 130, 47);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${dokSection}`, 175, 47);
-
-                    // Ambil nilai dok_user_erp dengan pengecekan yang lebih ketat
-                    const dokUsrErp = selectedRow.dok_user_erp ? selectedRow.dok_user_erp : "-";
-                    console.log("dok_user_erp:", dokUsrErp); // Debugging: Periksa nilai dok_user_erp
-
-                    // Tambahkan dok_user_erp ke PDF
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`ERP ACCOUNT / ID              :`, 15, 52);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${dokUsrErp}`, 62, 52);
-
-                    const dokErp = selectedRow.dok_erp || "-";
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text(`ERP                                         :`, 130, 52);
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(`${dokErp}`, 175, 52);
-
-                   const dokTingkat = selectedRow.dok_tingkat || "-";  // Keep dok_tingkat for TINGKAT KEPENTINGAN
-                    const dokPengadaan = selectedRow.dok_pengadaan || "-";  // Use dok_pengadaan for MOHON DIADAKAN
-                    const pengadaanOptions = [
-                        "Pengadaan Report Baru",
-                        "Pengadaan Session Baru",
-                        "Pengadaan Modul Baru",
-                        "Perubahan Report Yang Sudah Ada",
-                        "Perubahan Session Yang Sudah Ada",
-                        "Perubahan Modul Yang Sudah Ada"
-                    ];
-
-                    doc.setFont('Tahoma', 'bold');
-                    const modulOptions = ["Tinggi", "Medium", "Rendah"];
-                    const leftColumnX = 62;
-                    const rightColumnX = 130; // For the second column
-                    let rowY = 58; // Initial row for TINGKAT KEPENTINGAN section
-
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text("TINGKAT KEPENTINGAN :", 15, rowY);
-
-                    for (let i = 0; i < modulOptions.length; i++) {
-                        const modul = modulOptions[i];
-                        const isChecked = dokTingkat.includes(modul) ? "[ x ]" : "[   ]";  // Use dok_tingkat
-                        const columnX = leftColumnX + (i * 45);  // Adjust horizontal spacing
-                        const columnY = rowY;
-
-                        doc.setFont('Tahoma', 'normal');
-                        doc.text(`${isChecked} ${modul}`, columnX, columnY);
-                    }
-
-                    rowY += 6; // Increase this to add more space between sections
-
-                    // Add MOHON DIADAKAN section
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-                    doc.text("MOHON DIADAKAN            :", 15, rowY);
-
-                    for (let i = 0; i < 3; i++) {  // First 3 options in the first column
-                        const pengadaan = pengadaanOptions[i];
-                        const isChecked = dokPengadaan.includes(pengadaan) ? "[ x ]" : "[    ]";  // Use dok_pengadaan
-                        const columnX = leftColumnX;  // First column
-                        const columnY = rowY + (i * 4);  // Reduce spacing between options (e.g., 7px)
-
-                        doc.setFont('Tahoma', 'normal');
-                        doc.text(`${isChecked} ${pengadaan}`, columnX, columnY);  // Show checked status for each pengadaan
-                    }
-
-                    for (let i = 3; i < 6; i++) {  // Next 3 options in the second column
-                        const pengadaan = pengadaanOptions[i];
-                        const isChecked = dokPengadaan.includes(pengadaan) ? "[ x ]" : "[    ]";  // Use dok_pengadaan
-                        const columnX = rightColumnX;  // Second column
-                        const columnY = rowY + ((i - 3) * 4);  // Slightly adjust for the second column
-
-                        doc.setFont('Tahoma', 'normal');
-                        doc.text(`${isChecked} ${pengadaan}`, columnX, columnY);  // Show checked status for each pengadaan
-                    }
-
-
-                    doc.setFontSize(10);
-                    doc.setFont('Tahoma', 'bold');
-
-                    // ID MENU
-                    doc.text(`ID MENU                                 :`, 15, 77);
-                    const idMenuValue = selectedRow.dok_id_menu || "Tidak ada ID Menu";
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(idMenuValue, 62, 77);
-
-                    doc.setFont('Tahoma', 'bold');
-                    // JUDUL REPORT
-                    doc.text(`JUDUL REPORT                    :`, 15, 82); // Adjust the Y position as needed
-                    const judulReportValue = selectedRow.dok_judul_report || "Tidak ada ID Menu";
-                    doc.setFont('Tahoma', 'normal');
-                    doc.text(judulReportValue, 62, 82); // Position the JUDUL REPORT value
-
-                    doc.setFont('Tahoma', 'bold');
-                    // ALASAN PERMINTAAN (Add long box below JUDUL REPORT)
-                    doc.text(`ALASAN PERMINTAAN      `, 15, 87);
-
-                    const boxX = 15;
-                    const boxY = 89;
-                    const boxWidth = 180;
-                    const boxHeight = 10;
-
-                    doc.setDrawColor(0).setLineWidth(0.5);  // Set color and line width for the box
-                    doc.rect(boxX, boxY, boxWidth, boxHeight);  // Draw the rectangle
-
-                    doc.setFont('Tahoma', 'normal');
-                    const alasanValue = selectedRow.dok_reason || "";  // The reason text
-                    doc.text(alasanValue, boxX + 2, boxY + 5);  // Position the text inside the box
-
-                    // ===============================
-                    // SPESIFIKASI USER (Add long box below ALASAN PERMINTAAN)
-                    doc.setFont('Tahoma', 'bold')
-                    doc.text(`SPESIFIKASI USER        `, 15, boxY + boxHeight + 5);  // Adjust the Y position for SPESIFIKASI USER
-
-                    const specBoxX = 15;
-                    const specBoxY = boxY + boxHeight + 7;
-                    const specBoxWidth = 180;
-                    const specBoxHeight = 10;
-
-                    doc.setDrawColor(0).setLineWidth(0.5);  // Set color and line width for the box
-                    doc.rect(specBoxX, specBoxY, specBoxWidth, specBoxHeight);  // Draw the rectangle for SPESIFIKASI USER
-
-                    doc.setFont('Tahoma', 'normal');
-                    const specValue = selectedRow.dok_spesifikasi || "";  // The specification text
-                    doc.text(specValue, specBoxX + 2, specBoxY + 5);  // Position the text inside the box
-
-
-
-                    const noteY = specBoxY + specBoxHeight - 12;  // sedikit di bawah kotak SPESIFIKASI USER
-
-                    // ===============================
-                    // TANDA TANGAN USER - KADEPT - IT
-                    // ===============================
-                    let ySignature = noteY + 15;  // Adjust for the position of signature boxes after the note
-                    const colWidth = 60;
-
-                    ["USER", "KADEPT", "KADEPT IT SM"].forEach((title, i) => {
-                        const x = specBoxX + i * colWidth;
-                        doc.setDrawColor(0);
-                        doc.setLineWidth(0.5);
-                        doc.rect(x, ySignature, colWidth, 8);  // Header
-                        doc.rect(x, ySignature, colWidth, 20); // Box
-                        doc.setFont('Tahoma', 'bold').setFontSize(10);
-                        doc.text(title, x + 5, ySignature + 5);
-
-                        // TTD USER
-                        if (i === 0 && selectedRow.dok_ttd_user) {
-                            doc.addImage(
-                                selectedRow.dok_ttd_user,
-                                'PNG',
-                                x + 5,
-                                ySignature + 4,
-                                colWidth - 10,
-                                15
-                            );
-                        }
-
-                        // TTD KADEPT
-                        if (i === 1 && selectedRow.dok_ttd_kadept) {
-                            doc.addImage(
-                                selectedRow.dok_ttd_kadept,
-                                'PNG',
-                                x + 5,
-                                ySignature + 4,
-                                colWidth - 10,
-                                15
-                            );
-                        }
-
-                        // TTD KADEPT IT
-                        if (i === 2 && selectedRow.dok_ttd_kadeptit) {
-                            doc.addImage(
-                                selectedRow.dok_ttd_kadeptit,
-                                'PNG',
-                                x + 5,
-                                ySignature + 4,
-                                colWidth - 10,
-                                15
-                            );
-                        }
-                    });
-
-                    let yText = ySignature + 30 - 2; // Adjust if necessary
-
-
-                    // ===============================
-                    // NAMA & TANGGAL - 1 Baris Setiap Kolom
-                    // ===============================
-
-                    const formatDate = (d) => {
-                        const date = new Date(d);
-                        return isNaN(date) ? "-" : date.toLocaleString("id-ID", {
-                            day: "2-digit", month: "2-digit", year: "numeric",
-
-                        });
-                    };
-
-                    const createBy = selectedRow.createBy || "-";
-                    const modifBy = selectedRow.modifBy || "-";
-                    const dokApproveK = selectedRow.dok_approve_k || "-";
-
-                    const createDate = formatDate(selectedRow.createDate);
-                    const modifDate = formatDate(selectedRow.modifDate || "-");
-                    const modifDateK = formatDate(selectedRow.modifDate_k || "-");
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-
-                    // USER
-                    doc.text(`Nama & Tanggal : ${createBy}, ${createDate}`, boxX + 1, yText - 9);
-
-                    // KADEPT
-                    doc.text(`Nama & Tanggal : ${modifBy}, ${modifDate}`, boxX + colWidth + 2, yText - 9);
-
-                    // KADEPT IT SM
-                    doc.text(`Nama & Tanggal : ${dokApproveK}, ${modifDateK}`, boxX + colWidth * 2 + 2, yText - 9);
-
-                    // ===============================
-                    // BLOK II. DIISI OLEH IT
-                    // ===============================
-                    let yIT = yText - 5;
-
-                    doc.setDrawColor(200, 200, 200);
-                    doc.setFillColor(200, 200, 200);
-                    doc.rect(11, yIT, 188, 5, 'FD');
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(10);
-                    doc.text("II. ANALISA (DIISI OLEH IT)", 15, yIT + 4);
-                    doc.text("Dampak Report Terhadap :", 15, yIT + 10);
-
-                    const xStart = 60;      // Posisi X awal kotak pertama
-                    const boxSize = 5;      // Ukuran kotak (lebar & tinggi)
-                    const boxGapX = 18;     // Jarak horizontal antar kotak
-                    const boxGapY = 7;     // Jarak vertikal antar baris kotak
-
-                    const detailList = selectedRow.DetailDokumenRequestP3sp || [];
-                    const detail = detailList.length > 0 ? detailList[0] : {};
-
-                    const dok_quality = detail.dok_quality || "-";
-                    const dok_cost = detail.dok_cost || "-";
-                    const dok_delivery = detail.dok_delivery || "-";
-                    const dok_safety = detail.dok_safety || "-";
-                    const dok_morale = detail.dok_morale || "-";
-                    const dok_productivity = detail.dok_productivity || "-";
-
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(8);
-                    doc.text("QUALITY", xStart + boxSize + 2, yIT + 10);
-                    doc.text("COST", xStart + boxSize + boxGapX + boxSize + 2, yIT + 10);
-                    doc.text("DELIVERY", xStart + (boxGapX + boxSize) * 2 + boxSize + 2, yIT + 10);
-
-                    doc.text("SAFETY", xStart + boxSize + 2, yIT + 10 + boxGapY);
-                    doc.text("MORALE", xStart + boxSize + boxGapX + boxSize + 2, yIT + 10 + boxGapY);
-                    doc.text("PRODUCTIVITY", xStart + (boxGapX + boxSize) * 2 + boxSize + 2, yIT + 10 + boxGapY);
-
-                    doc.setDrawColor(0, 0, 0);
-
-                    doc.rect(xStart, yIT + 6, boxSize, boxSize);
-                    doc.rect(xStart + boxGapX + boxSize, yIT + 6, boxSize, boxSize);
-                    doc.rect(xStart + (boxGapX + boxSize) * 2, yIT + 6, boxSize, boxSize);
-
-                    doc.rect(xStart, yIT + 6 + boxGapY, boxSize, boxSize);
-                    doc.rect(xStart + boxGapX + boxSize, yIT + 6 + boxGapY, boxSize, boxSize);
-                    doc.rect(xStart + (boxGapX + boxSize) * 2, yIT + 6 + boxGapY, boxSize, boxSize);
-
-                    doc.setFont('Tahoma', 'normal').setFontSize(8);
-
-                    doc.text(dok_quality.toString(), xStart + 2, yIT + 6 + 3);
-                    doc.text(dok_cost.toString(), xStart + boxGapX + boxSize + 2, yIT + 6 + 3);
-                    doc.text(dok_delivery.toString(), xStart + (boxGapX + boxSize) * 2 + 2, yIT + 6 + 3);
-
-                    doc.text(dok_safety.toString(), xStart + 2, yIT + 5 + boxGapY + 5);
-                    doc.text(dok_morale.toString(), xStart + boxGapX + boxSize + 2, yIT + 5 + boxGapY + 5);
-                    doc.text(dok_productivity.toString(), xStart + (boxGapX + boxSize) * 2 + 2, yIT + 5 + boxGapY + 5);
-
-                    // Ambil nilai tingkat kesulitan (string seperti "TINGGI", "MEDIUM", "RENDAH")
-                    const dok_tingkat = detail.dok_tingkat_kesulitan ? detail.dok_tingkat_kesulitan.toUpperCase() : "-";
-
-                    // Posisi Y di bawah kotak ANALISA (atur jarak vertikal sesuai kebutuhan)
-                    const yTingkat = yIT + 6 + boxGapY * 2 + 5; // Bisa sesuaikan angka 15 jika perlu spasi lebih besar
-
-                    // Tulis label utama untuk bagian Tingkat Kesulitan Pembuatan
-                    doc.setFont('Tahoma', 'bold').setFontSize(10);
-                    doc.text("Tingkat Kesulitan               :", 15, yIT +25);
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(8);
-                    // Opsi tingkat kesulitan
-                    const tingkatOptions = ["TINGGI", "MEDIUM", "RENDAH"];
-                    const boxSizeTingkat = 5;
-                    const boxGapXTingkat = 18; // Jarak antar kotak
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(8);
-
-                    tingkatOptions.forEach((option, i) => {
-                        const xPos = xStart + (boxSizeTingkat + boxGapXTingkat) * i;
-                        const yPos = yTingkat - 4;
-
-                        // Gambar kotak
-                        doc.setDrawColor(0, 0, 0);
-                        doc.rect(xPos, yPos, boxSizeTingkat, boxSizeTingkat);
-
-                        // Jika opsi sama dengan nilai dok_tingkat, isi dengan "X"
-                        if (dok_tingkat === option) {
-                            doc.text("X", xPos + 1.5, yPos + 3.5);
-                        }
-
-                        doc.text(option, xPos + 7 , yPos + boxSizeTingkat - 1);
-                    });
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(10);
-                    doc.text("Score                                     :", 15, yIT + 32);
-                    doc.text(detail.dok_score ? detail.dok_score.toString() : "-", 60, yIT + 32);
-                    doc.text("PIC                                        :", 15, yIT + 37);
-                    doc.text(detail.dok_pic ? detail.dok_pic.toString() : "-", 60, yIT + 37);
-
-                    doc.text("Prioritas                       :", 120, yIT + 32);
-                    doc.text(detail.dok_prioritas ? detail.dok_prioritas.toString() : "-", 160, yIT + 32);
-
-                    const formattedDueDate = formatDateIndo(detail.dok_due_date);
-                    doc.text("Due Date                      :", 120, yIT + 37);
-                    doc.text(formattedDueDate, 160, yIT + 37);
-
-                    doc.text(`HASIL ANALISA      `, 15, yIT + 42);
-                    const boxX1 = 15;
-                    const boxY1 = yIT + 44;
-                    const boxWidth1 = 130;
-                    const boxHeight1 = 20;
-
-                    doc.setDrawColor(0).setLineWidth(0.5);  // Set color and line width for the box
-                    doc.rect(boxX1, boxY1, boxWidth1, boxHeight1);  // Draw the rectangle
-
-                    doc.setFont('Tahoma', 'normal');
-                    const analisaValue = detail.dok_hasil_analisa || "";  // The reason text
-                    doc.text(analisaValue, boxX1 + 2, boxY1 + 5);  // Position the text inside the box
-
-
-                    const boxX2 = boxX1 + boxWidth1 + 10; // jarak antar kotak
-                    const boxY2 = boxY1;
-                    const boxWidth2 = 40;
-                    const boxHeight2 = 20;
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.setDrawColor(0).setLineWidth(0.5);
-                    doc.rect(boxX2, boxY2, boxWidth2, boxHeight2); // gambar kotak
-
-                    // Judul atas
-                    const textTitle = "Business Analyst Approval";
-                    const textX = boxX2 + 2;
-                    const textY = boxY2 + 3;
-                    doc.text(textTitle, textX, textY);
-
-                    // Garis bawah teks judul
-                    const textWidth = doc.getTextWidth(textTitle);
-                    const lineY = textY + 1;
-                    doc.line(textX, lineY, textX + textWidth, lineY);
-
-                    // Tanda tangan (gambar) di bawah judul, posisi disesuaikan supaya pas di kotak
-                    const imgWidth = 40;  // lebar gambar tanda tangan
-                    const imgHeight = 20; // tinggi gambar tanda tangan
-                    const imgX = boxX2 + 10;  // posisi X gambar tanda tangan
-                    const imgY = textY - 2;  // posisi Y gambar tanda tangan (sedikit di bawah garis)
-
-                    if (selectedRow.dok_ttd_ba) {
-                        // dok_ttd_ba diasumsikan base64 string data gambar PNG/JPEG tanpa header data:image/png;base64,
-                        // kalau ada header, hapus dulu 'data:image/png;base64,' sebelum dimasukkan ke addImage
-                        let imgData = selectedRow.dok_ttd_ba;
-                        if (imgData.startsWith('data:image')) {
-                            imgData = imgData.split(',')[1];
-                        }
-
-                        doc.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
-                    }
-                    // Nama & Tanggal di bawah label
-                    const createByBa = selectedRow.dok_name_ba || "-";
-                    const createDateBa = formatDate(selectedRow.dok_tgl_ba || "-");
-                    doc.setFont('Tahoma', 'bold').setFontSize(8);
-                    doc.text(`${createByBa}, ${createDateBa}`, boxX2 + 2, boxY2 + boxHeight2 - 2);
-
-
-
-                    // ===============================
-                    // BLOK III. TEST
-                    // ===============================
-
-                    // Posisi Y awal blok III, setelah blok II
-                    const yTest = yIT + 68;  // sesuaikan jarak vertikal
-
-                    // Background abu-abu tipis untuk header blok III
-                    doc.setDrawColor(200, 200, 200);
-                    doc.setFillColor(200, 200, 200);
-                    doc.rect(11, yTest, 188, 5, 'FD');
-
-                    // Judul blok III
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text("III. TEST", 15, yTest + 4);
-
-                    // Tulis label "HASIL TEST"
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("HASIL TEST", 15, yTest + 9);
-
-                    // Kotak isi HASIL TEST
-                    const boxTestX = 15;
-                    const boxTestY = yTest + 10;  // di bawah label
-                    const boxTestWidth = 110;
-                    const boxTestHeight = 15;
-
-                    doc.setDrawColor(0);
-                    doc.setLineWidth(0.5);
-                    doc.rect(boxTestX, boxTestY, boxTestWidth, boxTestHeight);
-
-                    doc.setFont('Tahoma', 'normal').setFontSize(9);
-                    const hasilTes = selectedRow.dok_hasil_test || "-";
-                    doc.text(hasilTes, boxTestX + 2, boxTestY + 5);
-
-
-                    // =====================
-                    // Kotak tanda tangan User dan Tester berdampingan
-
-                    const ttdBoxWidth = 30;
-                    const ttdBoxHeight = 15;
-                    const ttdGapX = 5; // jarak antar kotak ttd
-
-                    // Posisi kotak User di samping kotak HASIL TEST, agak ke kanan dan sejajar vertikal
-                    const ttdUserX = boxTestX + boxTestWidth + ttdGapX;
-                    const ttdUserY = boxTestY;
-
-                    // Kotak tanda tangan User
-                    doc.rect(ttdUserX, ttdUserY, ttdBoxWidth, ttdBoxHeight);
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("USER", ttdUserX + 10, ttdUserY + 4);
-
-                    if (selectedRow.dok_ttd_tester_user) {
-                        let imgDataUser = selectedRow.dok_ttd_tester_user;
-                        if (imgDataUser.startsWith('data:image')) {
-                            imgDataUser = imgDataUser.split(',')[1];
-                        }
-
-                        const imgWidthUser = ttdBoxWidth + 12; // margin kiri-kanan
-                        const imgHeightUser = ttdBoxHeight - 5; // margin atas-bawah, agar pas di kotak
-
-                        const imgXUser = ttdUserX + 8;  // posisi gambar tanda tangan di dalam kotak user
-                        const imgYUser = ttdUserY + 1;  // sedikit di bawah tulisan "USER"
-
-                        doc.addImage(imgDataUser, 'PNG', imgXUser, imgYUser, imgWidthUser, imgHeightUser);
-                    }
-
-                    // Kotak tanda tangan Tester, nempel di kanan kotak User
-                    const ttdTesterX = ttdUserX + ttdBoxWidth + ttdGapX;
-                    const ttdTesterY = ttdUserY;
-
-                    doc.rect(ttdTesterX, ttdTesterY, ttdBoxWidth, ttdBoxHeight);
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("TESTER", ttdTesterX + 7, ttdTesterY + 4);
-
-                    if (selectedRow.dok_ttd_tester) {
-                        let imgDataTester = selectedRow.dok_ttd_tester;
-                        if (imgDataTester.startsWith('data:image')) {
-                            imgDataTester = imgDataTester.split(',')[1];
-                        }
-
-                        const imgWidthTester = ttdBoxWidth - 4; // margin kiri-kanan
-                        const imgHeightTester = ttdBoxHeight + 5; // margin atas-bawah
-
-                        const imgXTester = ttdTesterX + 8;  // posisi gambar tanda tangan di dalam kotak tester
-                        const imgYTester = ttdTesterY - 3;  // sedikit di bawah tulisan "TESTER"
-
-                        doc.addImage(imgDataTester, 'PNG', imgXTester, imgYTester, imgWidthTester, imgHeightTester);
-                    }
-
-
-
-                    // =====================
-                    // Tanggal di bawah kotak tanda tangan masing-masing
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(8);
-                    const tglUser = selectedRow.dok_tgl_tester_user ? formatDateIndo(selectedRow.dok_tgl_tester_user) : "-";
-                    const tglTester = selectedRow.dok_tgl_tester ? formatDateIndo(selectedRow.dok_tgl_tester) : "-";
-
-                    const tglUserX = ttdUserX + 1;
-                    const tglTesterX = ttdTesterX + 1;
-                    const tglY = ttdUserY + ttdBoxHeight - 2;
-
-                    doc.text(`TGL: ${tglUser}`, tglUserX, tglY);
-                    doc.text(`TGL: ${tglTester}`, tglTesterX, tglY);
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("SPESIFIKASI & VERIFIKASI USER", 15, yTest + 29);
-
-                    const spek = selectedRow.dok_spesifikasi_verifikasi || "-";
-                    doc.setFont('Tahoma', 'normal').setFontSize(9);
-                    doc.text(spek, 17, yTest + 35); // 6 unit di bawah judul, sesuaikan sesuai kebutuhan
-
-
-                    // Tentukan posisi dan ukuran kotak di bawah label
-                    const boxSpecX = 15;
-                    const boxSpecY = yTest + 30; // sedikit di bawah label
-                    const boxSpecWidth = 180;
-                    const boxSpecHeight = 10;
-
-                    // Gambar kotak
-                    doc.setDrawColor(0);
-                    doc.setLineWidth(0.5);
-                    doc.rect(boxSpecX, boxSpecY, boxSpecWidth, boxSpecHeight);
-
-                    // (Opsional) isi teks di dalam kotak, bisa disesuaikan
-                    doc.setFont('Tahoma', 'normal').setFontSize(9);
-                    doc.text("", boxSpecX + 2, boxSpecY + 12);
-
-                    // ===============================
-                    // BLOK IV. SERAH TERIMA DATA
-                    // ===============================
-
-                    // Posisi Y awal blok IV, setelah blok III (setelah kotak spesifikasi & verifikasi user)
-                    const ySerahTerima = boxSpecY + boxSpecHeight + 2;  // beri jarak 20px dari blok sebelumnya
-
-                    // Background abu-abu tipis untuk header blok IV
-                    doc.setDrawColor(200, 200, 200);
-                    doc.setFillColor(200, 200, 200);
-                    doc.rect(11, ySerahTerima, 188, 5, 'FD');
-
-                    // Judul blok IV
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text("IV. SERAH TERIMA DATA", 15, ySerahTerima + 4);
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("Tgl Efektif / Berlaku :", 15, yIT + 120);
-
-                    doc.setFont('Tahoma', 'normal').setFontSize(9);
-                    const tglEfektif = selectedRow.dok_tgl_efektif_bast ? formatDate(selectedRow.dok_tgl_efektif_bast) : "-";
-                    doc.text(tglEfektif, 50, yIT + 120);
-
-                    doc.setFont('Tahoma', 'normal').setFontSize(9);
-                    doc.text("Dilaksankan Oleh :", 120, yIT + 120);
-                    doc.text(selectedRow.dok_dilaksanakan_bast ? selectedRow.dok_dilaksanakan_bast.toString() : "-", 150, yIT + 120);
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-                    doc.text("BERITA ACARA SERAH TERIMA AKSES DATA :", 15, yIT + 125);
-
-                    // ===============================
-                    // TANDA TANGAN USER & KADEPT IT SM
-                    // ===============================
-
-                    const ySignatureSerahTerima = yIT + 130;  // posisi tanda tangan di bawah teks "BERITA ACARA..."
-
-                    const colWidthST = 90;  // lebar kolom tanda tangan (2 kolom, total 180)
-
-                    ["USER", "KADEPT IT SM"].forEach((title, i) => {
-                        const x = 15 + i * colWidthST;
-                        doc.setDrawColor(0);
-                        doc.setLineWidth(0.5);
-                        doc.rect(x, ySignatureSerahTerima, colWidthST, 8);  // Header box
-                        doc.rect(x, ySignatureSerahTerima, colWidthST, 20); // Kotak tanda tangan
-
-                        doc.setFont('Tahoma', 'bold').setFontSize(10);
-                        doc.text(title, x + 5, ySignatureSerahTerima + 5);
-
-                        if (title === "USER" && selectedRow.dok_ttd_user_bast) {
-                            doc.addImage(
-                                selectedRow.dok_ttd_user_bast,
-                                'PNG',
-                                x + 5,
-                                ySignatureSerahTerima + 4,
-                                colWidthST - 10,
-                                15
-                            );
-                        }
-
-                        if (title === "KADEPT IT SM" && selectedRow.dok_ttd_kadeptit_bast) {
-                            doc.addImage(
-                                selectedRow.dok_ttd_kadeptit_bast,
-                                'PNG',
-                                x + 5,
-                                ySignatureSerahTerima + 4,
-                                colWidthST - 10,
-                                15
-                            );
-                        }
-                    });
-
-                    const yTextST = ySignatureSerahTerima + 30 - 2;
-
-                    doc.setFont('Tahoma', 'bold').setFontSize(9);
-
-                    doc.text(
-                        `Tanggal Pelaksanaan: ${formatDate(selectedRow.dok_tgl_bast_user || "-")}`,
-                        15 + 1,
-                        yTextST - 9
-                    );
-
-                    doc.text(
-                        `Tanggal Pelaksanaan: ${formatDate(selectedRow.dok_tgl_bast_kadeptit || "-")}`,
-                        15 + colWidthST + 1,
-                        yTextST - 9
-                    );
-
-
-
-                    // ===============================
-                    // GARIS LUAR (border besar)
-                    // ===============================
-                    doc.setDrawColor(150);
-                    doc.setLineWidth(0.5);
-                    doc.rect(5, 5, 200, 290);
-
-
-                    const blob = doc.output("blob");
-                    const url = URL.createObjectURL(blob);
-
-                    // Set src iframe ke URL blob PDF
-                    $("#pdf-preview-frame").attr("src", url);
-
-                    // Tampilkan modal popup
-                    $("#pdf-preview-modal").show();
-
-                    // Setup tombol close modal
-                    $("#btn-close-pdf-preview").off("click").on("click", function () {
-                        $("#pdf-preview-modal").hide();
-                        $("#pdf-preview-frame").attr("src", "");
-                        URL.revokeObjectURL(url);
-                    });
+            function functionPrintDocument(e) {
+                const doc = new jsPDF('p', 'mm', 'a4');
+
+                doc.setFontSize(8);
+                doc.setFont('Tahoma', 'bold');
+                doc.text('Form I1-KM.022', 5, 4);
+                const logoURL = '/Content/images-new/logo_gs_battery_dark.jpg';
+                doc.addImage(logoURL, 'PNG', 10, 10, 54, 15);
+
+                doc.setDrawColor(150);
+                doc.setLineWidth(0.5);
+                doc.rect(9, 9, 56, 20);
+
+                doc.setFontSize(15);
+                doc.setFont('Tahoma', 'bold');
+                doc.text('FORM PENGAJUAN AKSES', 95, 16);
+                doc.setLineWidth(0.5);
+                doc.rect(65, 9, 136, 10);
+                doc.text('MODUL / SESSION ERP', 100, 26);
+                doc.rect(65, 19, 136, 10);
+
+                doc.rect(9, 30, 192, 264);
+
+                doc.setDrawColor(200, 200, 200);
+                doc.setFillColor(200, 200, 200);
+                doc.rect(11, 32, 188, 5, 'FD');
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text("I. PERMINTAAN USER", 15, 36);
+
+                const grid = e.component;
+                const selectedRow = e.row.data;
+
+                if (!selectedRow) {
+                    DevExpress.ui.notify("Pilih satu baris untuk dicetak.", "error", 2000);
+                    return;
                 }
+
+                const dokRefNum = selectedRow.dok_refnum || "-";
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text(`NO. REFERENSI                    :`, 15, 42);
+                doc.setFont('Tahoma', 'normal');
+                doc.text(`${dokRefNum}`, 62, 42);
+
+                const dokPlant = selectedRow.dok_plant || "-";
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text(`PLANT                                    :`, 130, 42);
+                doc.setFont('Tahoma', 'normal');
+                doc.text(`${dokPlant}`, 175, 42);
+
+                const usrNama = selectedRow.usr_nama || "-";
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text(`NAMA LENGKAP / NPK      :`, 15, 50);
+                doc.setFont('Tahoma', 'normal');
+                doc.text(`${usrNama}`, 62, 50);
+
+                const dokSection = selectedRow.dok_section || "-";
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text(`SEKSI / DEPARTEMEN      :`, 130, 50);
+                doc.setFont('Tahoma', 'normal');
+                doc.text(`${dokSection}`, 175, 50);
+
+                // Ambil nilai dok_user_erp dengan pengecekan yang lebih ketat
+                const dokUsrErp = selectedRow.dok_user_erp ? selectedRow.dok_user_erp : "-";
+                console.log("dok_user_erp:", dokUsrErp); // Debugging: Periksa nilai dok_user_erp
+
+                // Tambahkan dok_user_erp ke PDF
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text(`ERP ACCOUNT / ID              :`, 15, 58);
+                doc.setFont('Tahoma', 'normal');
+                doc.text(`${dokUsrErp}`, 62, 58);
+
+                const dokTingkat = selectedRow.dok_tingkat || "-";
+                const dokSuperuser = selectedRow.dok_superuser || "-";  // Menambahkan variabel untuk superuser
+                const dokJenisPekerjaan = selectedRow.dok_jenis_pekerjaan || "-";  // Menambahkan variabel untuk jenis pekerjaan
+                const dokJudulRequest = selectedRow.dok_judul_request || "-";  // Menambahkan variabel untuk judul request
+
+                doc.setFont('Tahoma', 'bold');
+                const modulOptions = ["Tinggi", "Medium", "Rendah"];
+                const superuserOptions = ["Ya", "Tidak"];  // Pilihan untuk superuser
+                const pekerjaanOptions = ["Pembuatan CDF", "Copy Company"];  // Pilihan untuk jenis pekerjaan
+
+                const leftColumnX = 62;
+                let rowY = 65;  // Posisi vertikal tetap pada baris pertama untuk "TINGKAT KEPENTINGAN"
+
+                doc.setFontSize(10);
+                doc.setFont('Tahoma', 'bold');
+                doc.text("TINGKAT KEPENTINGAN :", 15, rowY);
+
+                for (let i = 0; i < modulOptions.length; i++) {
+                    const modul = modulOptions[i];
+                    const isChecked = dokTingkat.includes(modul) ? "[ x ]" : "[   ]";
+
+                    // Tentukan posisi X agar item berada dalam satu baris
+                    const columnX = leftColumnX + i * 30;
+
+                    doc.setFont('Tahoma', 'bold');
+                    doc.text(`${isChecked} ${modul}`, columnX, rowY);  // Semua teks ditampilkan pada Y yang sama
+                }
+
+                // Menambahkan teks untuk "MENGGUNAKAN" dan "SUPERUSER" pada dua baris
+                rowY += 7;  // Menurunkan posisi Y untuk baris berikutnya
+                doc.setFont('Tahoma', 'bold');
+                doc.text("MENGGUNAKAN", 15, rowY);  // "MENGGUNAKAN" di baris pertama
+
+                // Menampilkan pilihan "Ya" dan "Tidak" sejajar dengan "MENGGUNAKAN"
+                const superuserY = rowY;  // Gunakan rowY yang sama dengan "MENGGUNAKAN" untuk menjaga "Ya" dan "Tidak" sejajar
+                for (let i = 0; i < superuserOptions.length; i++) {
+                    const superuser = superuserOptions[i];
+                    const isChecked = dokSuperuser.includes(superuser) ? "[ x ]" : "[   ]";
+
+                    // Tentukan posisi X agar item berada dalam satu baris dengan "MENGGUNAKAN"
+                    const columnX = leftColumnX + i * 30;
+
+                    doc.setFont('Tahoma', 'bold');
+                    doc.text(`${isChecked} ${superuser}`, columnX, superuserY);  // Pilihan "Ya" dan "Tidak" di Y yang sama
+                }
+
+                // Menambahkan teks "SUPERUSER" di bawah "MENGGUNAKAN"
+                rowY += 5;  // Menurunkan posisi Y untuk "SUPERUSER"
+                doc.text("SUPERUSER :", 15, rowY);  // "SUPERUSER" di baris kedua
+
+                // Menambahkan teks untuk "JENIS PEKERJAAN"
+                rowY += 7;  // Menurunkan posisi Y untuk baris berikutnya
+                doc.setFont('Tahoma', 'bold');
+                doc.text("JENIS PEKERJAAN              :", 15, rowY);  // "JENIS PEKERJAAN" di baris baru
+
+                // Menampilkan pilihan "PEMBUATAN CDF" dan "COPY COMPANY" untuk "JENIS PEKERJAAN"
+                const pekerjaanY = rowY;  // Gunakan posisi Y yang sama dengan "JENIS PEKERJAAN"
+                for (let i = 0; i < pekerjaanOptions.length; i++) {
+                    const pekerjaan = pekerjaanOptions[i];
+                    const isChecked = dokJenisPekerjaan.includes(pekerjaan) ? "[ x ]" : "[   ]";
+
+                    // Tentukan posisi X agar item berada dalam satu baris dengan "JENIS PEKERJAAN"
+                    const columnX = leftColumnX + i * 50;
+
+                    doc.setFont('Tahoma', 'bold');
+                    doc.text(`${isChecked} ${pekerjaan}`, columnX, pekerjaanY);  // Pilihan "PEMBUATAN CDF" dan "COPY COMPANY"
+                }
+
+                // Menambahkan teks untuk "JUDUL REQUEST"
+                rowY += 7;  // Menurunkan posisi Y untuk baris berikutnya
+                doc.setFont('Tahoma', 'bold');
+                doc.text("JUDUL REQUEST                 :", 15, rowY);  // "JUDUL REQUEST" di baris baru
+
+                doc.setFont('Tahoma', 'normal');  // Mengubah ke font normal untuk teks isi
+                doc.text(dokJudulRequest, 62, rowY);  // Menampilkan isi dari dok_judul_request sejajar dengan label
+
+
+
+                // ===============================
+                // ALASAN PERMINTAAN
+                // ===============================
+                doc.setFontSize(10).setFont('Tahoma', 'bold');
+                doc.text(`ALASAN PERMINTAAN PEKERJAAN:`, 15, rowY += 7);
+
+                const boxX = 15;
+                const boxY = rowY += 3;
+                const boxHeight = 15;
+
+                doc.setDrawColor(0).setLineWidth(0.5);
+                doc.rect(boxX, boxY, 180, boxHeight);
+
+                doc.setFont('Tahoma', 'normal');
+                doc.text(selectedRow.dok_reason || "Tidak ada alasan", boxX + 2, boxY + 5);
+
+                // ===============================
+                // SPESIFIKASI USER
+                // ===============================
+                let rowYSpesifikasi = rowY + boxHeight + 7;  // Menambahkan jarak untuk SPESIFIKASI USER
+                doc.setFontSize(10).setFont('Tahoma', 'bold');
+                doc.text(`SPESIFIKASI USER:`, 15, rowYSpesifikasi);  // Label untuk SPESIFIKASI USER
+
+                // Menentukan kotak untuk SPESIFIKASI USER
+                const boxXSpesifikasi = 15;
+                const boxYSpesifikasi = rowYSpesifikasi + 2;
+                const boxHeightSpesifikasi = 15;
+
+                doc.setDrawColor(0).setLineWidth(0.5);
+                doc.rect(boxXSpesifikasi, boxYSpesifikasi, 180, boxHeightSpesifikasi);  // Kotak untuk SPESIFIKASI USER
+
+                // Menampilkan isi dari dok_spesifikasi
+                doc.setFont('Tahoma', 'normal');
+                doc.text(selectedRow.dok_spesifikasi || "Tidak ada spesifikasi", boxXSpesifikasi + 2, boxYSpesifikasi + 5);  // Isi dari SPESIFIKASI USER
+
+                // ===============================
+                // TANDA TANGAN USER - KADEPT - IT - KADIV IT
+                // ===============================
+                let ySignature = boxYSpesifikasi + boxHeightSpesifikasi + 3;
+                const colWidth = 45; // Lebar kotak diperpendek
+
+                ["USER", "KADEPT", "KADEPT IT SM", "KADIV IT"].forEach((title, i) => {
+                    const x = boxX + i * colWidth;
+                    doc.setDrawColor(0);
+                    doc.setLineWidth(0.5);
+                    doc.rect(x, ySignature, colWidth, 8);  // Header
+                    doc.rect(x, ySignature, colWidth, 30); // Box
+                    doc.setFont('Tahoma', 'bold').setFontSize(10);
+                    doc.text(title, x + 5, ySignature + 5);
+
+                    let ttdData = null;
+                    if (i === 0) ttdData = selectedRow.dok_ttd_user;
+                    else if (i === 1) ttdData = selectedRow.dok_ttd_kadept;
+                    else if (i === 2) ttdData = selectedRow.dok_ttd_kadeptit;
+                    else if (i === 3) ttdData = selectedRow.dok_ttd_kadivit; // Tanda tangan KADIV IT
+
+                    console.log(`TTD ${title}:`, ttdData ? `Ada, length: ${ttdData.length}` : 'Kosong/null');
+
+                    if (ttdData) {
+                        // Gambar kotak merah dulu untuk debug posisi
+                        try {
+                            doc.addImage(
+                                ttdData,
+                                'PNG',
+                                x + 5,
+                                ySignature + 9,
+                                colWidth - 10,  // Menyesuaikan ukuran gambar agar lebih kecil
+                                15
+                            );
+                            console.log(`TTD ${title} berhasil ditambahkan ke PDF.`);
+                        } catch (e) {
+                            console.error(`Error saat menambahkan TTD ${title}:`, e);
+                        }
+                    } else {
+                        console.warn(`TTD ${title} tidak ada, tidak ditambahkan.`);
+                    }
+                });
+
+                let yText = ySignature + 30 - 2;
+
+
+                // ===============================
+                // NAMA & TANGGAL - 1 Baris Setiap Kolom
+                // ===============================
+
+                const formatDate = (d) => {
+                    const date = new Date(d);
+                    return isNaN(date) ? "-" : date.toLocaleString("id-ID", {
+                        day: "2-digit", month: "2-digit", year: "numeric",
+                    });
+                };
+
+                const createBy = selectedRow.createBy || "-";
+                const modifBy = selectedRow.modifBy || "-";
+                const dokApproveK = selectedRow.dok_approve_k || "-";
+                const dokApproveKadiv = selectedRow.dok_approve_kadiv || "-";
+
+                const createDate = formatDate(selectedRow.createDate);
+                const modifDate = formatDate(selectedRow.modifDate || "-");
+                const modifDateK = formatDate(selectedRow.modifDate_k || "-");
+                const modifDateKadiv = formatDate(selectedRow.modifDate_kadiv || "-");
+                const tglDibutuhkan = formatDate(selectedRow.dok_tgl_dibutuhkan || "-");
+                const dilaksanakan = (selectedRow.dok_dilaksanakan_oleh || "-");
+
+                doc.setFont('Tahoma', 'bold').setFontSize(9);
+
+                // USER
+                doc.text(`${createBy}, ${createDate}`, boxX + 2, yText);
+
+                // KADEPT
+                doc.text(`${modifBy}, ${modifDate}`, boxX + colWidth + 2, yText);
+
+                // KADEPT IT SM
+                doc.text(`${dokApproveK}, ${modifDateK}`, boxX + colWidth * 2 + 2, yText);
+
+                // KADIV IT
+                doc.text(`${dokApproveKadiv}, ${modifDateKadiv}`, boxX + colWidth * 2 + 2 + 45, yText);
+
+                // Tanggal Penerimaan di IT
+                doc.setFont('Tahoma', 'normal').setFontSize(9);
+                doc.text("Tanggal Penerimaan Form:", boxX + 2 + colWidth * 2 - 90, yText + 7);
+                doc.text(modifDateK.split(",")[0], boxX + 2 + colWidth * 2 - 55, yText + 7);
+                doc.text("Tanggal Dibutuhkan:", boxX + 2 + colWidth * 2 - 30, yText + 7);
+                doc.text(tglDibutuhkan.split(",")[0], boxX + 2 + colWidth * 2 - 1, yText + 7);
+                doc.text("Dilaksanakan Oleh:", boxX + 2 + colWidth * 2 + 30, yText + 7);
+                doc.text(dilaksanakan.split(",")[0], boxX + 2 + colWidth * 2 + 60, yText + 7);
+
+                // ===============================
+                // BLOK II. DIISI OLEH IT
+                // ===============================
+                let yIT = yText + 10;
+
+                doc.setDrawColor(200, 200, 200);
+                doc.setFillColor(200, 200, 200);
+                doc.rect(11, yIT, 188, 5, 'FD');
+
+                doc.setFont('Tahoma', 'bold').setFontSize(10);
+                doc.text("II. DIISI OLEH IT", 15, yIT + 4);
+                doc.text("Status Permintaan :", 15, yIT + 10);
+
+                // Tabel IT
+                const tableIT_Y = yIT + 13;
+                const colITWidth = 60;
+                const rowHeight = 20;
+
+                const tglPekerjaan = selectedRow.dok_tgl_pekerjaan
+                    ? new Date(selectedRow.dok_tgl_pekerjaan    ).toLocaleDateString("id-ID")
+                    : "-";
+
+                const tglEfektif = selectedRow.dok_tgl_efektif
+                    ? new Date(selectedRow.dok_tgl_efektif).toLocaleDateString("id-ID")
+                    : "-";
+
+                const dilaksanakanOleh = selectedRow.dok_dilaksanakan_oleh || "-";
+
+                ["Tanggal Pekerjaan", "Tanggal Efektif", "Dilaksanakan Oleh"].forEach((text, i) => {
+                    const x = boxX + i * colITWidth;
+
+                    // Kotak
+                    doc.setDrawColor(0).setLineWidth(0.5);
+                    doc.rect(x, tableIT_Y, colITWidth, 6);          // Header
+                    doc.rect(x, tableIT_Y, colITWidth, rowHeight);  // Full box
+
+                    // 👉 Header Bold
+                    doc.setFont('Tahoma', 'bold').setFontSize(10);
+                    doc.text(text, x + 5, tableIT_Y + 4);
+
+                    // 👉 Isi (teks atau gambar)
+                    if (i === 2) {
+                        if (selectedRow.dok_dilaksanakan_oleh) {
+                            // Tampilkan teks dari dok_dilaksanakan_oleh
+                            doc.setFont('Tahoma', 'normal').setFontSize(9);
+                            doc.text(selectedRow.dok_dilaksanakan_oleh, x + 5, tableIT_Y + 11);
+                        } else {
+                            // Tampilkan teks jika tidak ada dok_dilaksanakan_oleh
+                            doc.setFont('Tahoma', 'normal').setFontSize(9);
+                            doc.text('Tidak ada tanda tangan', x + 5, tableIT_Y + 11);
+                        }
+                    } else {
+                        // Untuk kolom 0 & 1 atau jika belum ada TTD
+                        let value = "-";
+                        if (i === 0) value = tglPekerjaan;
+                        if (i === 1) value = tglEfektif;
+
+                        doc.setFont('Tahoma', 'normal').setFontSize(9);
+                        doc.text(value, x + 5, tableIT_Y + 11);
+                    }
+
+                });
+
+
+
+
+                // ===============================
+                // BLOK III. SERAH TERIMA DATA
+                // ===============================
+
+                let ySerahTerima = tableIT_Y + rowHeight + 5; // Geser posisi ke bawah
+
+                // Header "III. SERAH TERIMA DATA"
+                doc.setDrawColor(200, 200, 200);
+                doc.setFillColor(200, 200, 200);
+                doc.rect(11, ySerahTerima, 188, 6, 'FD');
+
+                doc.setFont('Tahoma', 'bold').setFontSize(10);
+                doc.text("III. SERAH TERIMA DATA", 15, ySerahTerima + 4);
+
+                // BERITA ACARA SERAH TERIMA
+                let yBeritaAcara = ySerahTerima + 10;
+                doc.setFont('Tahoma', 'bold').setFontSize(9);
+                doc.text("BERITA ACARA SERAH TERIMA AKSES DATA :", 15, yBeritaAcara);
+
+                // Deskripsi
+                let yTextAcara = yBeritaAcara + 6;
+                doc.setFont('Tahoma', 'italic').setFontSize(9);
+                doc.text(`" Departemen IT dengan ini menyatakan bahwa telah melakukan sosialisasi penggunaan Akses Data kepada Pemohon "`, 15, yTextAcara);
+
+                // Tanggal Efektif
+                let yTanggalEfektif = yTextAcara + 10;
+                doc.setFont('Tahoma', 'bold').setFontSize(9);
+                doc.text("Tanggal Efektif / Berlaku  :", 15, yTanggalEfektif);
+                doc.setDrawColor(0);
+                doc.rect(70, yTanggalEfektif - 4, 120, 6);
+
+                // 🟢 Isi Tanggal Efektif BAST
+                if (selectedRow.dok_tgl_efektif_bast) {
+                    const tglEfektifBAST = new Date(selectedRow.dok_tgl_efektif_bast).toLocaleDateString("id-ID");
+                    doc.setFont('Tahoma', 'normal').setFontSize(9);
+                    doc.text(tglEfektifBAST, 72, yTanggalEfektif);
+                } else {
+                    doc.setFont('Tahoma', 'normal').setFontSize(9);
+                    doc.text("-", 72, yTanggalEfektif);
+                }
+
+                // Dilaksanakan Oleh
+                let yDilaksanakan = yTanggalEfektif + 8;
+                doc.setFont('Tahoma', 'bold').setFontSize(9);
+                doc.text("Dilaksanakan Oleh           :", 15, yDilaksanakan);
+                doc.rect(70, yDilaksanakan - 4, 120, 6);
+
+                // 🟢 Isi Dilaksanakan Oleh BAST
+                if (selectedRow.dok_dilaksanakan_bast) {
+                    doc.setFont('Tahoma', 'normal').setFontSize(9);
+                    doc.text(selectedRow.dok_dilaksanakan_bast, 72, yDilaksanakan);
+                } else {
+                    doc.setFont('Tahoma', 'normal').setFontSize(9);
+                    doc.text("-", 72, yDilaksanakan);
+                }
+
+
+                // ===============================
+                // TABEL UNTUK USER & KADEPT IT SM
+                // ===============================
+                let yTandaTangan = yDilaksanakan + 5;
+                const colSignWidth = 90;
+                const rowSignHeight = 25;
+
+                // Loop untuk USER & KADEPT IT SM
+                ["USER", "KADEPT IT SM"].forEach((title, i) => {
+                    const x = 15 + i * colSignWidth;
+
+                    // Header
+                    doc.setDrawColor(0);
+                    doc.setLineWidth(0.5);
+                    doc.rect(x, yTandaTangan, colSignWidth, 8);
+                    doc.text(title, x + 25, yTandaTangan + 5);
+
+                    // Box tanda tangan
+                    doc.rect(x, yTandaTangan, colSignWidth, rowSignHeight);
+
+                    // Isi tanda tangan
+                    const ttdX = x + 3;
+                    const ttdY = yTandaTangan + 10;
+                    const ttdW = colSignWidth - 10;
+                    const ttdH = 12;
+
+                    if (i === 0 && selectedRow.dok_ttd_user_bast) {
+                        doc.addImage(
+                            selectedRow.dok_ttd_user_bast,
+                            'PNG',
+                            ttdX,
+                            ttdY,
+                            ttdW,
+                            ttdH
+                        );
+                    }
+
+                    if (i === 1 && selectedRow.dok_ttd_kadeptit_bast) {
+                        doc.addImage(
+                            selectedRow.dok_ttd_kadeptit_bast,
+                            'PNG',
+                            ttdX,
+                            ttdY,
+                            ttdW,
+                            ttdH
+                        );
+                    }
+
+                    // Nama & Tanggal
+                    const yNamaTanggal = yTandaTangan + rowSignHeight - 2;
+                    doc.setFont('Tahoma', 'bold').setFontSize(9);
+
+                    const nama = i === 0 ? (selectedRow.dok_user_bast || "-") : (selectedRow.dok_kadeptit_bast || "-");
+                    const tanggalRaw = i === 0 ? selectedRow.dok_tgl_user_bast : selectedRow.dok_tgl_kadeptit_bast;
+
+                    const tanggal = tanggalRaw
+                        ? new Date(tanggalRaw).toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" })
+                        : "-";
+
+                    doc.text(`Nama / Tanggal : ${nama}, ${tanggal}`, x + 2, yTandaTangan + rowSignHeight - 2);
+                });
+
+
+
+                // ===============================
+                // GARIS LUAR (border besar)
+                // ===============================
+                doc.setDrawColor(150);
+                doc.setLineWidth(0.5);
+                doc.rect(5, 5, 200, 290);
+
+
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+
+                // Set src iframe ke URL blob PDF
+                $("#pdf-preview-frame").attr("src", url);
+
+                // Tampilkan modal popup
+                $("#pdf-preview-modal").show();
+
+                // Setup tombol close modal
+                $("#btn-close-pdf-preview").off("click").on("click", function () {
+                    $("#pdf-preview-modal").hide();
+                    $("#pdf-preview-frame").attr("src", "");
+                    URL.revokeObjectURL(url);
+                });
+
+            }
 
 
             function formatDateIndo(dateStr) {
@@ -2309,7 +2093,7 @@
                 dokPlant,
                 dokSection,
                 dokReqBy,
-                dokStatus,
+                dok_status,
                 dokTingkat,
                 dokSuperuser,
                 dokJenisPekerjaan,
@@ -2346,7 +2130,7 @@
                     "#txtDokPlant": dokPlant,
                     "#txtDokSection": dokSection,
                     "#txtDokReqBy": usrNama,
-                    "#txtStatus": statusMap[dokStatus] || "-",
+                    "#txtStatus": statusMap[dok_status] || "-",
                     "#txtTingkat": dokTingkat,
                     "#txtSuperuser": dokSuperuser,
                     "#txtjenisPekerjaan": dokJenisPekerjaan,
@@ -2519,10 +2303,10 @@
                     popup.show();
 
                     setTimeout(() => {
-                        let form = $("#addAdmin").dxForm("instance"); // Ambil instance Form
+                        let form = $("#accAdmin").dxForm("instance"); // Ambil instance Form
 
                         if (!form) {
-                            console.error("Form 'addAdmin' tidak ditemukan.");
+                            console.error("Form 'accAdmin' tidak ditemukan.");
                             return;
                         }
 
@@ -2555,32 +2339,34 @@
 
 
             function updateDokumen() {
-                const form = $("#addAdmin").dxForm("instance");
+                let form = $("#accAdmin").dxForm("instance");
 
-                // Validasi form, hasilnya objek {isValid: boolean, brokenRules: [...]}
-                const result = form.validate();
-
-                if (!result.isValid) {
-                    // Kalau validasi gagal, tampilkan notifikasi error
-                    DevExpress.ui.notify("Data belum lengkap, Lengkapi data tersebut.", "error", 3000);
-                    return; // hentikan proses submit
+                if (!form) {
+                    console.error("Form 'accAdmin' tidak ditemukan.");
+                    return;
                 }
 
-                const formData = form.option("formData");
-                console.log("FormData to submit:", formData);
+                let isValid = form.validate().isValid;
+
+                if (!isValid) {
+                    DevExpress.ui.notify("Harap lengkapi semua isian yang wajib!", "warning", 3000);
+                    return;
+                }
+
+                let formData = form.option("formData");
 
                 $.ajax({
-                    url: "/api/ManageMasterDokumenRequest/UpdateBaP3sp",
+                    url: "/api/ManageMasterDokumenRequestPip/UpdateDokumen",
                     type: "PUT",
-                    data: $.param(formData),
-                    success: function (res) {
-                        DevExpress.ui.notify("Update sukses", "success", 2000);
-                        $("#accadmin-popup").dxPopup("hide");
+                    data: formData,
+                    success: function (response) {
+                        DevExpress.ui.notify(response.Message, "success", 3000);
+                        $("#accadmin-popup").dxPopup("instance").hide();
                         $("#gridContainer").dxDataGrid("instance").refresh();
                     },
-                    error: function (err) {
-                        DevExpress.ui.notify("Update gagal", "error", 2000);
-                        console.error(err.responseText);
+                    error: function (xhr) {
+                        let errorMessage = xhr.responseJSON ? xhr.responseJSON.Message : "Terjadi kesalahan";
+                        DevExpress.ui.notify(errorMessage, "error", 3000);
                     }
                 });
             }
@@ -2952,6 +2738,75 @@
             }
 
 
+                              function showApproveKadeptPopup(dok_id, dok_status) {
+                         let dataPopUp = document.getElementById("approvekadept-popup");
+                         let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
+
+                         if (dok_status === undefined || dok_status === null) {
+                             dok_status = -1; // Jika tidak ada status, beri nilai default -1
+                         }
+
+                         popup.option({
+                             dok_id: dok_id,
+                             dok_status: dok_status // Pastikan dok_status tersimpan di popup
+                         });
+
+                         console.log("Popup dibuka dengan Dokumen ID:", dok_id, "Status:", dok_status);
+
+                         popup.show();
+                     }
+
+function functionBtnApproveKadept() {
+        let dataPopUp = document.getElementById("approvekadept-popup");
+         let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
+
+         let dok_id = popup.option("dok_id");
+         let dok_status = popup.option("dok_status"); // Ambil dok_status dari popup
+         var userRole = "@logSession.userrole";
+
+         console.log("Dokumen ID:", dok_id);
+         console.log("Dokumen Status sebelum validasi:", dok_status);
+         console.log("User Role:", userRole);
+         console.log("Popup Options:", popup.option()); // Debugging
+
+         if (!dok_id) {
+             DevExpress.ui.notify("Dokumen ID tidak valid!", "error", 2000);
+             return;
+         }
+
+         if (dok_status === undefined || dok_status === null) {
+             DevExpress.ui.notify("Gagal mendapatkan status dokumen!", "error", 2000);
+             return;
+         }
+
+         dok_status = parseInt(dok_status);
+
+
+         $.ajax({
+             url: "/api/ManageMasterDokumenRequestPpi/ApproveBastKadept",
+             type: "PUT",
+             data: { key: dok_id, dok_status: dok_status },
+             success: function (response) {
+                 DevExpress.ui.notify(response.Message, "success", 2000);
+                 popup.hide();
+                 $("#gridContainer").dxDataGrid("instance").refresh();
+             },
+             error: function (xhr) {
+                 DevExpress.ui.notify("Terjadi kesalahan: " + xhr.responseText, "error", 3000);
+             }
+         });
+            }
+
+            function approveKadeptBASTPopupContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve Kadept this record?");
+            }
+
+            $(function () {
+                $("#approvekadept-popup").dxPopup("instance").option("contentTemplate", approveKadeptBASTPopupContentTemplate);
+            });
+
+
+
                 function onSelectionChanged(e) {
                     const selectedRow = e.selectedRowsData[0];
                     const approveButton = $(".btn-approve");
@@ -3041,6 +2896,75 @@
                     }
                 });
             }
+
+
+            function showApproveKadivPopup(dok_id, dok_status) {
+                let dataPopUp = document.getElementById("approvekadiv-popup");
+                let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
+
+                if (dok_status === undefined || dok_status === null) {
+                    dok_status = -1; // Jika tidak ada status, beri nilai default -1
+                }
+
+                popup.option({
+                    dok_id: dok_id,
+                    dok_status: dok_status // Pastikan dok_status tersimpan di popup
+                });
+
+                console.log("Popup dibuka dengan Dokumen ID:", dok_id, "Status:", dok_status);
+
+                popup.show();
+            }
+
+            function approveKadivContentTemplate(contentElement) {
+                contentElement.text("Are you sure you want to approve Kadiv this record?");
+            }
+
+            $(function () {
+                // Set contentTemplate option secara manual di client side
+                $("#approvekadiv-popup").dxPopup("instance").option("contentTemplate", approveKadivContentTemplate);
+            });
+
+
+             function functionBtnApproveKadiv() {
+                 let dataPopUp = document.getElementById("approvekadiv-popup");
+                 let popup = DevExpress.ui.dxPopup.getInstance(dataPopUp);
+
+                 let dok_id = popup.option("dok_id");
+                 let dok_status = popup.option("dok_status"); // Ambil dok_status dari popup
+                 var userRole = "@logSession.userrole";
+
+                 console.log("Dokumen ID:", dok_id);
+                 console.log("Dokumen Status sebelum validasi:", dok_status);
+                 console.log("User Role:", userRole);
+                 console.log("Popup Options:", popup.option()); // Debugging
+
+                 if (!dok_id) {
+                     DevExpress.ui.notify("Dokumen ID tidak valid!", "error", 2000);
+                     return;
+                 }
+
+                 if (dok_status === undefined || dok_status === null) {
+                     DevExpress.ui.notify("Gagal mendapatkan status dokumen!", "error", 2000);
+                     return;
+                 }
+
+                 dok_status = parseInt(dok_status);
+
+                 $.ajax({
+                     url: "/api/ManageMasterDokumenRequestPpi/ApproveKadiv",
+                     type: "PUT",
+                     data: { key: dok_id, dok_status: dok_status },
+                     success: function (response) {
+                         DevExpress.ui.notify(response.Message, "success", 2000);
+                         popup.hide();
+                         $("#gridContainer").dxDataGrid("instance").refresh();
+                     },
+                     error: function (xhr) {
+                         DevExpress.ui.notify("Terjadi kesalahan: " + xhr.responseText, "error", 3000);
+                     }
+                 });
+             }
 
 
 
@@ -3177,7 +3101,7 @@
                 console.log("🧪 Data dari grid (Edit):", data);
 
                 isEditMode = true;
-                currentDokId = data.dok_id; 
+                currentDokId = data.dok_id;
 
                 // Set semua field form sesuai data yang diterima
                 $("#reference_number").dxTextBox("instance").option("value", data.dok_refnum ?? "");

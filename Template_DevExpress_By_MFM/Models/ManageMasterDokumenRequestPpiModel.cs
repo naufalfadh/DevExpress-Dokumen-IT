@@ -41,6 +41,7 @@ namespace Template_DevExpress_By_MFM.Models
         public string dok_ttd_kadeptit { get; set; }
         public string dok_ttd_kadivit { get; set; }
         public DateTime? dok_tgl_penerimaan { get; set; }
+        public DateTime? dok_tgl_pekerjaan { get; set; }
         public DateTime? dok_tgl_dibutuhkan { get; set; }
         public DateTime? dok_tgl_efektif { get; set; }
         public string dok_dilaksanakan_oleh { get; set; }

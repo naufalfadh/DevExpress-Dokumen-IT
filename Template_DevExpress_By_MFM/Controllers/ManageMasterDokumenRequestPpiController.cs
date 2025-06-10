@@ -118,7 +118,7 @@ namespace Template_DevExpress_By_MFM.Controllers
 
                 IQueryable<MasterDokumenRequestPpi> dataList;
 
-                if (userRole == "admin" || userRole == "kadeptit" || userRole == "businessanalyst")
+                if (userRole == "admin" || userRole == "kadeptit" || userRole == "kadiv")
                 {
                     dataList = GSDbContext.MasterDokumenRequestPpi.AsQueryable();
 
@@ -565,8 +565,8 @@ Link sistem: http://localhost:8000/Login
                 var keyValue = form.Get("dok_id");
                 if (string.IsNullOrEmpty(keyValue))
                 {
-                    Console.WriteLine("⚠️ dokId tidak boleh kosong");
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, "dokId tidak boleh kosong");
+                    Console.WriteLine("⚠️ dok_id tidak boleh kosong");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "dok_id tidak boleh kosong");
                 }
 
                 var key = Convert.ToInt64(keyValue);
@@ -656,6 +656,514 @@ Link sistem: http://localhost:8000/Login
                 GSDbContext.SaveChanges();
 
                 return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD IT disimpan" });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/ApproveKadiv")]
+        public HttpResponseMessage ApproveKadiv(FormDataCollection form)
+        {
+            try
+            {
+                if (form == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+
+                var keyValue = form.Get("key");
+
+                if (string.IsNullOrEmpty(keyValue))
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Key tidak boleh kosong");
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+
+                // ✅ Convert NPK dari session ke long?
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+
+                // ✅ Cari user dari tabel user
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+
+                // ✅ Update status dan tanda tangan IT
+                master.dok_status = 3;
+                master.dok_approve_kadiv = sessionLogin.fullname;
+                master.modifDate_kadiv = DateTime.UtcNow.AddHours(7);
+                master.dok_ttd_kadivit = currentUser.usr_img_ttd ?? "";
+
+                GSDbContext.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD IT disimpan" });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPip/UpdateDokumen")]
+        public HttpResponseMessage UpdateDokumen(FormDataCollection form)
+        {
+            try
+            {
+                Console.WriteLine("🛠 Proses UpdateDokumen dimulai...");
+
+                if (form == null)
+                {
+                    Console.WriteLine("⚠️ FormDataCollection is null");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+                }
+
+                var keyValue = form.Get("dok_id");
+                if (string.IsNullOrEmpty(keyValue))
+                {
+                    Console.WriteLine("⚠️ dok_id tidak boleh kosong");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "dok_id tidak boleh kosong");
+                }
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                {
+                    Console.WriteLine("⚠️ Dokumen tidak ditemukan");
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+                }
+
+                Console.WriteLine($"✅ Dokumen ditemukan: dok_id = {key}, dok_status = {master.dok_status}");
+
+                if (master.dok_status == 2 || master.dok_status == 1 || master.dok_status == 0)
+                {
+                    Console.WriteLine("⛔ Permohonan belum disetujui oleh Kadept dan Kadept IT SM!");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, new
+                    {
+                        Success = false,
+                        Message = "Permohonan belum disetujui oleh Kadept dan Kadept IT SM!"
+                    });
+                }
+
+                // 🔹 Perbarui dok_tgl_pembuatan jika tersedia di form
+                var tglPenerimaanStr = form.Get("dok_tgl_penerimaan");
+                if (!string.IsNullOrEmpty(tglPenerimaanStr) && DateTime.TryParse(tglPenerimaanStr, out DateTime tglPenerimaan))
+                {
+                    master.dok_tgl_penerimaan = tglPenerimaan;
+                    Console.WriteLine($"📅 dok_tgl_penerimaan diperbarui: {tglPenerimaan}");
+                }
+
+                // 🔹 Perbarui dok_tgl_dibutuhkan jika tersedia di form
+                var tglDibutuhkanStr = form.Get("dok_tgl_dibutuhkan");
+                if (!string.IsNullOrEmpty(tglDibutuhkanStr) && DateTime.TryParse(tglDibutuhkanStr, out DateTime tglDibutuhkan))
+                {
+                    master.dok_tgl_dibutuhkan = tglDibutuhkan;
+                    Console.WriteLine($"📅 dok_tgl_dibutuhkan diperbarui: {tglDibutuhkan}");
+                }
+
+                var tglPekerjaanStr = form.Get("dok_tgl_pekerjaan");
+                if (!string.IsNullOrEmpty(tglPekerjaanStr) && DateTime.TryParse(tglPekerjaanStr, out DateTime tglPekerjaan))
+                {
+                    master.dok_tgl_pekerjaan = tglPekerjaan;
+                    Console.WriteLine($"📅 dok_tgl_pekerjaan diperbarui: {tglPekerjaan}");
+                }
+
+                var tglEfektifStr = form.Get("dok_tgl_efektif");
+                if (!string.IsNullOrEmpty(tglEfektifStr) && DateTime.TryParse(tglEfektifStr, out DateTime tglEfektif))
+                {
+                    master.dok_tgl_efektif = tglEfektif;
+                    Console.WriteLine($"📅 dok_tgl_efektif diperbarui: {tglEfektif}");
+                }
+
+                // 🔹 Ambil tanda tangan user dari session dan simpan ke dok_dilaksanakan
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                {
+                    Console.WriteLine("⚠️ NPK user login tidak valid");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+                }
+
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                {
+                    Console.WriteLine("⚠️ User tidak ditemukan di database");
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+                }
+
+
+                master.dok_dilaksanakan_oleh = sessionLogin?.fullname ?? "";
+                Console.WriteLine($"👤 dok_dilaksanakan_by diisi: {master.dok_dilaksanakan_oleh}");
+
+                master.dok_status = 4;
+
+                // 🔄 Simpan perubahan
+                GSDbContext.SaveChanges();
+                Console.WriteLine("✅ Perubahan disimpan ke database.");
+
+
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Dokumen berhasil diperbarui" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ ERROR: {ex.Message}");
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, new
+                {
+                    Message = "Terjadi kesalahan saat memperbarui dokumen",
+                    Error = ex.Message,
+                    StackTrace = ex.StackTrace
+                });
+            }
+        }
+
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/UpdateBast")]
+        public HttpResponseMessage UpdateBast(FormDataCollection form)
+        {
+            try
+            {
+                Console.WriteLine("🛠 Proses UpdateBast dimulai...");
+
+                if (form == null)
+                {
+                    Console.WriteLine("⚠️ FormDataCollection is null");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+                }
+
+                var keyValue = form.Get("dok_id");
+                if (string.IsNullOrEmpty(keyValue))
+                {
+                    Console.WriteLine("⚠️ dok_id tidak boleh kosong");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "dok_id tidak boleh kosong");
+                }
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                {
+                    Console.WriteLine("⚠️ Dokumen tidak ditemukan");
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+                }
+
+                Console.WriteLine($"✅ Dokumen ditemukan: dok_id = {key}, dok_status = {master.dok_status}");
+
+                if (master.dok_status == 3 || master.dok_status == 2 || master.dok_status == 1 || master.dok_status == 0)
+                {
+                    Console.WriteLine("⛔ Permohonan belum disetujui oleh Kadept dan Kadept IT SM!");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, new
+                    {
+                        Success = false,
+                        Message = "Permohonan belum disetujui oleh Kadept, Kadept IT SM dan ADMIN!"
+                    });
+                }
+
+                var tglEfektifbastStr = form.Get("dok_tgl_efektif_bast");
+                if (!string.IsNullOrEmpty(tglEfektifbastStr) && DateTime.TryParse(tglEfektifbastStr, out DateTime tglEfektifbast))
+                {
+                    master.dok_tgl_efektif_bast = tglEfektifbast;
+                    Console.WriteLine($"📅 dok_tgl_efektif diperbarui: {tglEfektifbast}");
+                }
+
+
+                master.dok_dilaksanakan_bast = "System Department IT";
+                Console.WriteLine($"🖊 dok_dilaksanakan diisi otomatis dari usr_img_ttd: {master.dok_dilaksanakan_bast}");
+
+
+                master.dok_status = 5;
+
+                // 🔄 Simpan perubahan
+                GSDbContext.SaveChanges();
+
+                var users = GSDbContext.MasterUserForm
+                       .Where(u => u.usr_role != null && u.usr_role.Equals("user", StringComparison.OrdinalIgnoreCase))
+                       .ToList();
+
+                if (users != null && users.Any())
+                {
+                    foreach (var user in users)
+                    {
+                        if (!string.IsNullOrEmpty(user.usr_email))
+                        {
+                            string emailUser = user.usr_email;
+                            string emailMessage = $@"
+Yth. {user.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah dilaukan test oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailUser, emailMessage);
+
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email  kosong untuk user: {user.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
+
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Dokumen BAST berhasil dibuat" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ ERROR: {ex.Message}");
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, new
+                {
+                    Message = "Terjadi kesalahan saat memperbarui dokumen",
+                    Error = ex.Message,
+                    StackTrace = ex.StackTrace
+                });
+            }
+        }
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/ApproveBastUser")]
+        public HttpResponseMessage ApproveBastUser(FormDataCollection form)
+        {
+            try
+            {
+                if (form == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+
+                var keyValue = form.Get("key");
+                var statusValue = form.Get("dok_status"); // bisa dipakai kalau mau update ke status dinamis
+
+                if (string.IsNullOrEmpty(keyValue))
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Key tidak boleh kosong");
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+
+                if (master.dok_status == 2)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "Dokumen sudah direject, silakan ajukan kembali.");
+                }
+
+                // ✅ Convert session NPK ke long?
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+
+                // ✅ Ambil user yang sedang login
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+
+                // ✅ Update status & TTD kadept
+                master.dok_status = 6;
+                master.dok_ttd_user_bast = currentUser.usr_img_ttd ?? "";
+                master.dok_tgl_bast_user = DateTime.UtcNow.AddHours(7);
+
+                GSDbContext.SaveChanges();
+
+                var kadeptitUsers = GSDbContext.MasterUserForm
+                       .Where(u => u.usr_role != null && u.usr_role.Equals("kadeptit", StringComparison.OrdinalIgnoreCase))
+                       .ToList();
+
+                if (kadeptitUsers != null && kadeptitUsers.Any())
+                {
+                    foreach (var kadeptit in kadeptitUsers)
+                    {
+                        if (!string.IsNullOrEmpty(kadeptit.usr_email))
+                        {
+                            string emailKadeptit = kadeptit.usr_email;
+                            string emailMessage = $@"
+Yth. {kadeptit.usr_nama},
+
+Status dokumen dengan nomor referensi {master.dok_refnum} telah disetujui BAST oleh {sessionLogin.fullname}.
+
+Silakan cek sistem untuk informasi lebih lanjut.
+
+Link sistem: http://localhost:8000/Login
+";
+
+                            bool emailSent = SendEmailNotification(emailKadeptit, emailMessage);
+
+                            if (emailSent)
+                            {
+                                Console.WriteLine("✅ Email berhasil dikirim ke KadeptIT: " + emailKadeptit);
+                            }
+                            else
+                            {
+                                Console.WriteLine("⚠️ Gagal mengirim email ke: " + emailKadeptit);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"⚠️ Email KadeptIT kosong untuk user: {kadeptit.usr_nama}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Tidak ditemukan user dengan role KadeptIT");
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD disimpan" });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/ApproveBastKadeptIT")]
+        public HttpResponseMessage ApproveBastKadeptIT(FormDataCollection form)
+        {
+            try
+            {
+                if (form == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+
+                var keyValue = form.Get("key");
+                var statusValue = form.Get("dok_status"); // bisa dipakai kalau mau update ke status dinamis
+
+                if (string.IsNullOrEmpty(keyValue))
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Key tidak boleh kosong");
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+
+                if (master.dok_status == 2)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "Dokumen sudah direject, silakan ajukan kembali.");
+                }
+
+                // ✅ Convert session NPK ke long?
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+
+                // ✅ Ambil user yang sedang login
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+
+                // ✅ Update status & TTD kadept
+                master.dok_status = 13;
+                master.dok_ttd_kadeptit_bast = currentUser.usr_img_ttd ?? "";
+                master.dok_tgl_bast_kadeptit = DateTime.UtcNow.AddHours(7);
+
+                GSDbContext.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD disimpan" });
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+
+        [SessionCheck]
+        [HttpPut]
+        [Route("api/ManageMasterDokumenRequestPpi/ApproveBastKadept")]
+        public HttpResponseMessage ApproveBastKadept(FormDataCollection form)
+        {
+            try
+            {
+                if (form == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "FormDataCollection is null");
+
+                var keyValue = form.Get("key");
+                var statusValue = form.Get("dok_status"); // bisa dipakai kalau mau update ke status dinamis
+
+                if (string.IsNullOrEmpty(keyValue))
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Key tidak boleh kosong");
+
+                var key = Convert.ToInt64(keyValue);
+                var master = GSDbContext.MasterDokumenRequestPpi.FirstOrDefault(e => e.dok_id == key);
+
+                if (master == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Dokumen tidak ditemukan");
+
+                if (master.dok_status == 2)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest,
+                        "Dokumen sudah direject, silakan ajukan kembali.");
+                }
+
+                // ✅ Convert session NPK ke long?
+                long? currentUserNpk = null;
+                if (long.TryParse(sessionLogin?.npk?.ToString(), out long parsedNpk))
+                {
+                    currentUserNpk = parsedNpk;
+                }
+
+                if (currentUserNpk == null)
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "NPK user login tidak valid");
+
+                // ✅ Ambil user yang sedang login
+                var currentUser = GSDbContext.MasterUserForm.FirstOrDefault(u => u.usr_npk == currentUserNpk);
+
+                if (currentUser == null)
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User tidak ditemukan di database");
+
+                // ✅ Update status & TTD kadept
+                master.dok_status = 7;
+                master.dok_ttd_kadept_bast = currentUser.usr_img_ttd ?? "";
+                master.dok_tgl_bast_kadept = DateTime.UtcNow.AddHours(7);
+
+                GSDbContext.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, new { Message = "Status berhasil diperbarui & TTD disimpan" });
             }
             catch (Exception ex)
             {
