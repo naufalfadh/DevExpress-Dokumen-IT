@@ -582,7 +582,6 @@
                 .OnClick("function() { $('#approvekadept-popup').dxPopup('instance').hide(); }"));
     })
 )
-
     @(Html.DevExtreme().Popup()
     .ID("detail-popup")
     .Width(800)
@@ -901,10 +900,9 @@
         @(Html.DevExtreme().Form()
             .ID("accAdmin") // Form ID harus sesuai dengan JS
             .ColCount(2)
-            .FormData(new { dok_id = "", dok_refnum = "", dok_status = "" }) // Default nilai kosong
+            .FormData(new { dok_id = "", dok_refnum = "", dok_status = "", dok_status_permintaan = "", dok_tgl_pekerjaan = (DateTime?)null, dok_tgl_efektif = (DateTime?)null }) // Default nilai kosong dan untuk tanggal null
             .Items(items =>
             {
-
                 items.AddSimple().DataField("dok_refnum")
                     .Label(label => label.Text("Dokumen Ref"))
                     .Editor(e => e.TextBox().ReadOnly(true)); // ReadOnly agar tidak bisa diubah
@@ -914,48 +912,50 @@
                     .Editor(e => e.TextBox().ReadOnly(true));
 
                 items.AddSimple()
-          .DataField("dok_tgl_penerimaan")
-          .Label(l => l.Text("Tanggal Penerimaan"))
-          .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
-          .ValidationRules(rules =>
-          {
-              rules.AddRequired().Message("Tanggal Pembuatan wajib diisi");
-          });
+                    .DataField("dok_tgl_penerimaan")
+                    .Label(l => l.Text("Tanggal Penerimaan"))
+                    .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+                    .ValidationRules(rules =>
+                    {
+                        rules.AddRequired().Message("Tanggal Pembuatan wajib diisi");
+                    });
 
                 items.AddSimple()
                     .DataField("dok_tgl_dibutuhkan")
-                    .Label(l => l.Text("Tanggal Dibuthkan"))
+                    .Label(l => l.Text("Tanggal Dibutuhkan"))
                     .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
                     .ValidationRules(rules =>
                     {
                         rules.AddRequired().Message("Tanggal Efektif wajib diisi");
                     });
 
+                // Radio Button for Status Permintaan
                 items.AddSimple()
-                    .Label(label => label.Text("Status Permintaan"));
+                    .DataField("dok_status_permintaan")
+                    .Label(label => label.Text("Status Permintaan"))
+                    .Editor(e => e.RadioGroup()
+                        .Items(new List<string> { "Complete", "Reject" })
+                        .Layout(Orientation.Horizontal)
+                        .OnValueChanged("onStatusPermintaanChanged") // Panggil fungsi JavaScript saat nilai berubah
+                    );
 
                 items.AddSimple().DataField("dok_id")
                     .Label(label => label.Text("Dokumen ID").Visible(false))
                     .Editor(e => e.TextBox().Visible(false).ReadOnly(true));
 
-
                 items.AddSimple()
-.DataField("dok_tgl_pekerjaan")
-.Label(l => l.Text("Tanggal Pekerjaan"))
-.Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
-.ValidationRules(rules =>
-{
-    rules.AddRequired().Message("Tanggal Pekerjaan wajib diisi");
-});
+                    .DataField("dok_tgl_pekerjaan")
+                    .Label(l => l.Text("Tanggal Pekerjaan"))
+                    .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
+                    .Name("dok_tgl_pekerjaan_item") // Tambahkan nama untuk akses mudah dari JS
+                    .Visible(false); // Awalnya di-hide
 
                 items.AddSimple()
                     .DataField("dok_tgl_Efektif")
                     .Label(l => l.Text("Tanggal Efektif"))
                     .Editor(e => e.DateBox().Type(DateBoxType.Date).DateSerializationFormat("yyyy-MM-dd"))
-                    .ValidationRules(rules =>
-                    {
-                        rules.AddRequired().Message("Tanggal Efektif wajib diisi");
-                    });
+                    .Name("dok_tgl_efektif_item") // Tambahkan nama untuk akses mudah dari JS
+                    .Visible(false); // Awalnya di-hide
 
                 items.AddButton()
                     .ColSpan(2)
@@ -1009,9 +1009,9 @@
                 if (userRole === "user") {
                     document.querySelectorAll(".btn-approve,.btn-accadminbast, .btn-reject, .btn-approveit, .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit  , .btn-approvekadept, .btn-approvekadivit, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadept") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit,.btn-approve, .btn-reject,  .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit   , .btn-approvekadivit, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approveit,  .btn-rejectit, .btn-accept, .btn-accadmin, .btn-approvekadeptit   , .btn-approvekadivit, .btn-approveusertester, .btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadeptit") {
-                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept, .btn-approveit, .btn-rejectit, .btn-accadmin, .btn-approveusertester  , .btn-approvekadept, .btn-approvekadivit,.btn-admintest").forEach(el => el.style.display = "none");
+                    document.querySelectorAll(".btn-accadminbast, .btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-accept,  .btn-accadmin, .btn-approveusertester  , .btn-approvekadept, .btn-approvekadivit,.btn-admintest").forEach(el => el.style.display = "none");
                 } else if (userRole === "admin") {
                     document.querySelectorAll(".btn-edit, .btn-delete, .btn-approve, .btn-reject, .btn-approveit, .btn-rejectit, .btn-approvekadeptit, .btn-approvekadivit  , .btn-approvekadept, .btn-approveusertester").forEach(el => el.style.display = "none");
                 } else if (userRole === "kadiv") {
@@ -1143,6 +1143,30 @@
                 $('#infoPopupp').dxPopup('show');
             }
 
+            function onStatusPermintaanChanged(e) {
+                var form = $("#accAdmin").dxForm("instance");
+
+                // Use beginUpdate and endUpdate for better performance when making multiple changes
+                form.beginUpdate();
+
+                var tanggalPekerjaanItem = form.itemOption("dok_tgl_pekerjaan"); // Access by dataField directly
+                var tanggalEfektifItem = form.itemOption("dok_tgl_Efektif"); // Access by dataField directly
+
+                if (e.value === "Complete") {
+                    // Set visible to true
+                    form.itemOption("dok_tgl_pekerjaan", "visible", true);
+                    form.itemOption("dok_tgl_Efektif", "visible", true);
+                } else {
+                    // Set visible to false
+                    form.itemOption("dok_tgl_pekerjaan", "visible", false);
+                    form.itemOption("dok_tgl_Efektif", "visible", false);
+
+                    // Clear values if hidden (optional, but good practice)
+                    form.updateData("dok_tgl_pekerjaan", null);
+                    form.updateData("dok_tgl_Efektif", null);
+                }
+                form.endUpdate(); 
+            }
 
            function calculateTotalScore() {
                 var quality = parseFloat($("#accAdmin").dxForm("instance").getEditor("dok_quality").option("value")) || 0;
@@ -1903,7 +1927,7 @@
                         } else {
                             // Tampilkan teks jika tidak ada dok_dilaksanakan_oleh
                             doc.setFont('Tahoma', 'normal').setFontSize(9);
-                            doc.text('Tidak ada tanda tangan', x + 5, tableIT_Y + 11);
+                            doc.text('', x + 5, tableIT_Y + 11);
                         }
                     } else {
                         // Untuk kolom 0 & 1 atau jika belum ada TTD
